@@ -9,7 +9,7 @@ A production-quality full-stack web application for booking highway bus tickets 
 
 ---
 
-## 📋 Table of Contents
+##  Table of Contents
 
 - [Project Overview](#project-overview)
 - [Features](#features)
@@ -23,25 +23,25 @@ A production-quality full-stack web application for booking highway bus tickets 
 
 ---
 
-## 📖 Project Overview
+##  Project Overview
 
 RouteX solves the real-world problem of inefficient highway bus ticket booking in Sri Lanka.  
 Currently most passengers queue at bus stands or call operators directly. RouteX provides:
 
-- 🔍 Online route search by origin, destination, and date
-- 💺 Real-time seat selection and booking
-- 📡 Live seat availability updates via WebSocket (no page refresh needed)
-- 📧 Email OTP verification for accounts and bookings (via Gmail SMTP)
-- 🎫 QR-code boarding passes generated as PDF e-tickets
-- 🤖 Smart chatbot (RouteBot) for passenger route queries
-- 🛠️ Full admin dashboard for route, booking, and user management
+-  Online route search by origin, destination, and date
+-  Real-time seat selection and booking
+-  Live seat availability updates via WebSocket (no page refresh needed)
+-  Email OTP verification for accounts and bookings (via Gmail SMTP)
+-  QR-code boarding passes generated as PDF e-tickets
+-  Smart chatbot (RouteBot) for passenger route queries
+-  Full admin dashboard for route, booking, and user management
 
 **Focus Route:** Makumbura ↔ Katharagama (Bus Bay B-6) with real timetable data,  
 expanded to **16+ routes** island-wide (Colombo → Kandy, Galle, Jaffna, Matara, Anuradhapura, Trincomalee, Badulla, Batticaloa and more).
 
 ---
 
-## ✅ Features
+##  Features
 
 ### Core Requirements Met
 
@@ -58,7 +58,7 @@ expanded to **16+ routes** island-wide (Colombo → Kandy, Galle, Jaffna, Matara
 | CSRF Protection | Disabled for `/api/**` (stateless JWT REST API) |
 | JPA + Seed Data | All entities JPA mapped, `DataSeeder` runs on startup |
 
-### 🚀 Beyond-CRUD Features
+###  Beyond-CRUD Features
 
 | Feature | Details |
 |---|---|
@@ -75,7 +75,7 @@ expanded to **16+ routes** island-wide (Colombo → Kandy, Galle, Jaffna, Matara
 
 ---
 
-## 🛠️ Tech Stack
+##  Tech Stack
 
 | Layer | Technology |
 |---|---|
@@ -93,7 +93,7 @@ expanded to **16+ routes** island-wide (Colombo → Kandy, Galle, Jaffna, Matara
 
 ---
 
-## 🗄️ ER Diagram
+##  ER Diagram
 
 ```
 ┌─────────────────────┐         ┌──────────────────────────┐
@@ -140,7 +140,7 @@ expanded to **16+ routes** island-wide (Colombo → Kandy, Galle, Jaffna, Matara
 
 ---
 
-## 📁 Project Structure
+##  Project Structure
 
 ```
 RouteX_Full_Project/
@@ -220,7 +220,7 @@ RouteX_Full_Project/
 
 ---
 
-## ⚙️ Setup & Run
+##  Setup & Run
 
 ### Prerequisites
 - Java 21+
@@ -273,7 +273,7 @@ The app auto-creates all tables and seeds demo data on first run.
 
 ---
 
-## 🔑 Default Credentials
+##  Default Credentials
 
 | Role | Email | Password |
 |---|---|---|
@@ -284,7 +284,7 @@ The app auto-creates all tables and seeds demo data on first run.
 
 ---
 
-## 📡 API Documentation
+##  API Documentation
 
 Full interactive Swagger UI available at: `http://localhost:8080/swagger-ui.html`
 
@@ -338,22 +338,7 @@ POST /api/bot/message   → { "message": "hello" } → RouteBot response
 
 ---
 
-## 👥 Member Task Division
 
-| # | Member           | Module | Key Files |
-|---|------------------|---|---|
-| 1 | Member 1- 38239  | Frontend — Home Page & Route Search UI | `index.html`, `home.css`, `home.js` |
-| 2 | Member 2- 38242  | Frontend — Booking UI, Seat Map & Auth Pages | `booking.html`, `booking.css`, `booking.js`, `login.html`, `register.html`, `auth.css` |
-| 3 | Member 3- 38050  | Database Design & Booking OTP System | `User.java`, `BusRoute.java`, `Schedule.java`, `Booking.java`, OTP logic in `BookingController.java` |
-| 4 | Member 4- 37915  | JWT Token System | `JwtUtil.java`, `JwtAuthFilter.java`, `UserDetailsServiceImpl.java` |
-| 5 | Member 5 - 38756 | Spring Security & Auth Flow | `SecurityConfig.java`, `AuthController.java`, `AuthService.java` |
-| 6 | Member 6 - 37926 | Bus Route Service & Schedule Logic | `BusRouteService.java`, `BusRouteController.java`, `BusRouteRepository.java`, `ScheduleRepository.java` |
-| 7 | Member 7 - 38537 | Booking Service & Real-Time WebSocket | `BookingService.java`, `BookingRepository.java`, `WebSocketConfig.java` |
-| 8 | Member 8 - 38025 | Email Service & Brevo API Integration | `EmailService.java` |
-| 9 | Member 9 - 38730 | QR Code Generation & Data Seeder | `QRCodeService.java`, `DataSeeder.java` |
-| 10 | Member 10 -38451 | Admin Dashboard Backend & Chatbot | `AdminController.java`, `ChatBotService.java`, `ChatBotController.java` |
-
----
 
 ## 📄 License
 
