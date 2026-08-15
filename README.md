@@ -5,7 +5,7 @@ A production-quality full-stack web application for booking highway bus tickets 
 
 ---
 
-## 📋 Table of Contents
+##  Table of Contents
 
 - [Project Overview](#project-overview)
 - [Features](#features)
@@ -19,25 +19,25 @@ A production-quality full-stack web application for booking highway bus tickets 
 
 ---
 
-## 📖 Project Overview
+##  Project Overview
 
 RouteX solves the real-world problem of inefficient highway bus ticket booking in Sri Lanka.  
 Currently most passengers queue at bus stands or call operators directly. RouteX provides:
 
-- 🔍 Online route search by origin, destination, and date
-- 💺 Real-time seat selection and booking
-- 📡 Live seat availability updates via WebSocket (no page refresh needed)
-- 📧 Email OTP verification for accounts and bookings (via Gmail SMTP)
-- 🎫 QR-code boarding passes generated as PDF e-tickets
-- 🤖 Smart chatbot (RouteBot) for passenger route queries
-- 🛠️ Full admin dashboard for route, booking, and user management
+-  Online route search by origin, destination, and date
+-  Real-time seat selection and booking
+-  Live seat availability updates via WebSocket (no page refresh needed)
+-  Email OTP verification for accounts and bookings (via Gmail SMTP)
+-  QR-code boarding passes generated as PDF e-tickets
+-  Smart chatbot (RouteBot) for passenger route queries
+-  Full admin dashboard for route, booking, and user management
 
 **Focus Route:** Makumbura ↔ Katharagama (Bus Bay B-6) with real timetable data,  
 expanded to **16+ routes** island-wide (Colombo → Kandy, Galle, Jaffna, Matara, Anuradhapura, Trincomalee, Badulla, Batticaloa and more).
 
 ---
 
-## ✅ Features
+##  Features
 
 ### Core Requirements Met
 
@@ -54,7 +54,7 @@ expanded to **16+ routes** island-wide (Colombo → Kandy, Galle, Jaffna, Matara
 | CSRF Protection | Disabled for `/api/**` (stateless JWT REST API) |
 | JPA + Seed Data | All entities JPA mapped, `DataSeeder` runs on startup |
 
-### 🚀 Beyond-CRUD Features
+###  Beyond-CRUD Features
 
 | Feature | Details |
 |---|---|
@@ -71,7 +71,7 @@ expanded to **16+ routes** island-wide (Colombo → Kandy, Galle, Jaffna, Matara
 
 ---
 
-## 🛠️ Tech Stack
+##  Tech Stack
 
 | Layer | Technology |
 |---|---|
@@ -89,7 +89,7 @@ expanded to **16+ routes** island-wide (Colombo → Kandy, Galle, Jaffna, Matara
 
 ---
 
-## 🗄️ ER Diagram
+##  ER Diagram
 
 ```
 ┌─────────────────────┐         ┌──────────────────────────┐
@@ -136,7 +136,7 @@ expanded to **16+ routes** island-wide (Colombo → Kandy, Galle, Jaffna, Matara
 
 ---
 
-## 📁 Project Structure
+##  Project Structure
 
 ```
 RouteX_Full_Project/
@@ -216,7 +216,7 @@ RouteX_Full_Project/
 
 ---
 
-## ⚙️ Setup & Run
+##  Setup & Run
 
 ### Prerequisites
 - Java 21+
@@ -269,7 +269,7 @@ The app auto-creates all tables and seeds demo data on first run.
 
 ---
 
-## 🔑 Default Credentials
+##  Default Credentials
 
 | Role | Email | Password |
 |---|---|---|
@@ -280,7 +280,7 @@ The app auto-creates all tables and seeds demo data on first run.
 
 ---
 
-## 📡 API Documentation
+##  API Documentation
 
 Full interactive Swagger UI available at: `http://localhost:8080/swagger-ui.html`
 
@@ -334,7 +334,7 @@ POST /api/bot/message   → { "message": "hello" } → RouteBot response
 
 ---
 
-## 👥 Member Task Division
+##  Member Task Division
 
 | # | Member           | Module | Key Files |
 |---|------------------|---|---|
@@ -351,7 +351,7 @@ POST /api/bot/message   → { "message": "hello" } → RouteBot response
 
 ---
 
-## 📄 License
+##  License
 
 MIT License — Built for educational purposes.  
 Group Project, NSBM Green University, 2026.
