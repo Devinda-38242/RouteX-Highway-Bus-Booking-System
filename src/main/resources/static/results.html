@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<!--suppress ALL -->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RouteX – Search Results</title>
+    <link rel="icon" href="images/Logo.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/results.css">
+</head>
+<body>
+<header>
+    <nav class="navbar">
+        <div class="brand" onclick="location.href='index.html'">
+            <img class="nav-logo" src="images/Logo.png" alt="RouteX Logo">
+            <h2>RouteX</h2>
+        </div>
+        <div class="nav-buttons">
+            <button class="home-btn" onclick="location.href='index.html'"><i class="fas fa-home"></i> Home</button>
+            <button id="theme-toggle" class="theme-btn" aria-label="Switch to light mode"><i class="fa-solid fa-sun"></i></button>
+        </div>
+    </nav>
+</header>
+
+<section class="results-header">
+    <h1 id="route-title">Searching...</h1>
+    <p id="route-subtitle">Please wait</p>
+    <!-- Re-search form -->
+    <form class="mini-search" onsubmit="reSearch(event)">
+        <input list="r-origins-list" type="text" id="s-from" placeholder="From" autocomplete="off">
+        <datalist id="r-origins-list"></datalist>
+        <input list="r-dest-list" type="text" id="s-to" placeholder="To" autocomplete="off">
+        <datalist id="r-dest-list"></datalist>
+        <input type="date" id="s-date">
+        <button type="submit"><i class="fas fa-search"></i></button>
+    </form>
+</section>
+
+<!-- Filters & Sort -->
+<div class="filter-bar">
+    <div class="filter-group">
+        <label>Sort by:</label>
+        <select id="sort-select" onchange="applySort()">
+            <option value="departureTime,asc">Departure (Early)</option>
+            <option value="departureTime,desc">Departure (Late)</option>
+            <option value="price,asc">Price (Low → High)</option>
+            <option value="price,desc">Price (High → Low)</option>
+        </select>
+    </div>
+    <div class="filter-group">
+        <label>Bus Type:</label>
+        <select id="type-filter" onchange="applySort()">
+            <option value="">All Types</option>
+            <option value="SUPER_LUXURY">Super Luxury</option>
+            <option value="LUXURY">Luxury</option>
+            <option value="EXPRESS">Express</option>
+        </select>
+    </div>
+    <div class="results-count" id="results-count"></div>
+</div>
+
+<div id="results-container" class="results-list">
+    <div class="skeleton-card"></div>
+    <div class="skeleton-card"></div>
+    <div class="skeleton-card"></div>
+</div>
+
+<!-- Pagination -->
+<div class="pagination" id="pagination"></div>
+
+<script>
+const API = 'http://localhost:8080/api';
+const params = new URLSearchParams(window.location.search);
+let from = params.get('from') || '', to = params.get('to') || '', date = params.get('date') || '';
+let currentPage = 0;
+let allRoutes = [];
+
+document.getElementById('s-from').value = from;
+document.getElementById('s-to').value = to;
+document.getElementById('s-date').value = date;
+document.getElementById('s-date').min = new Date().toISOString().split('T')[0];
+
+function reSearch(e) {
+    e.preventDefault();
+    from = document.getElementById('s-from').value.trim();
+    to = document.getElementById('s-to').value.trim();
+    date = document.getElementById('s-date').value;
+    if (!from || !to || !date) return;
+    currentPage = 0;
+    loadResults();
+}
+
+async function loadResults(page = 0) {
+    if (!from || !to || !date) {
+        document.getElementById('route-title').textContent = 'No search data';
+        document.getElementById('results-container').innerHTML = '<div class="no-results"><div class="no-results-icon">🔍</div><h3>Enter search details</h3><p>Go back to the home page and search for a route.</p></div>';
+        return;
+    }
+    document.getElementById('route-title').textContent = `${from} → ${to}`;
+    document.getElementById('route-subtitle').textContent = `Available buses for ${formatDate(date)}`;
+
+    const [sortField, sortDir] = document.getElementById('sort-select').value.split(',');
+    const typeFilter = document.getElementById('type-filter').value;
+    const params = new URLSearchParams({ origin: from, destination: to, date, page, size: 10, sortBy: sortField, direction: sortDir });
+
+    try {
+        const res = await fetch(`${API}/routes/search?${params}`);
+        const json = await res.json();
+        if (json.success) {
+            let content = json.data.content;
+            if (typeFilter) content = content.filter(r => r.busType === typeFilter);
+            allRoutes = content;
+            renderResults(content, json.data);
+            renderPagination(json.data);
+        } else {
+            showNoResults('API Error: ' + json.message);
+        }
+    } catch (e) {
+        showNoResults('Could not connect to the server. Please make sure the backend is running on localhost:8080.');
+    }
+}
+
+function getDemoData() {
+    const origin = from; const dest = to;
+    return [
+        { id:1, origin, destination:dest, departureTime:'06:30', arrivalTime:'13:00', busType:'SUPER_LUXURY', operatorName:'SLTB Long Distance', contactNumber:'011-2612212', price:1800, totalSeats:50 },
+        { id:2, origin, destination:dest, departureTime:'07:30', arrivalTime:'14:00', busType:'SUPER_LUXURY', operatorName:'SLTB Long Distance', contactNumber:'071-7458751', price:1800, totalSeats:50 },
+        { id:3, origin, destination:dest, departureTime:'12:15', arrivalTime:'03:20', busType:'LUXURY', operatorName:'SuperLine Express', contactNumber:'076-6367777', price:1500, totalSeats:50 },
+    ];
+}
+
+function renderResults(buses, pageData) {
+    const container = document.getElementById('results-container');
+    if (!buses || buses.length === 0) { showNoResults(); return; }
+
+    document.getElementById('results-count').textContent = `${pageData.totalElements || buses.length} buses found`;
+    container.innerHTML = buses.map((bus, i) => {
+        const available = bus.totalSeats - (bus.bookedCount || 0);
+        const typeLabel = { SUPER_LUXURY:'Super Luxury', LUXURY:'Luxury', EXPRESS:'Express', SUPER_EXPRESS:'Super Express' }[bus.busType] || bus.busType;
+        const seatClass = available <= 5 ? 'seat-low' : available <= 15 ? 'seat-medium' : 'seat-ok';
+        const seatText = available <= 5 ? `⚠️ Only ${available} seats left!` : `${available} seats available`;
+        return `
+        <div class="bus-card" style="animation-delay:${i * 0.08}s">
+            <div class="bus-top">
+                <div class="company">
+                    <div class="company-logo"><i class="fas fa-bus"></i></div>
+                    <div>
+                        <h3>${bus.origin} → ${bus.destination}</h3>
+                        <p class="company-name">${bus.operatorName}</p>
+                        <p class="contact-num"><i class="fas fa-phone"></i> ${bus.contactNumber || 'N/A'}</p>
+                    </div>
+                </div>
+                <span class="bus-type-badge type-${bus.busType?.toLowerCase().replace('_','-')}">${typeLabel}</span>
+            </div>
+            <div class="bus-middle">
+                <div class="time-block">
+                    <h2>${bus.departureTime}</h2>
+                    <p>Departure</p>
+                </div>
+                <div class="duration-line">
+                    <span class="dot"></span>
+                    <div class="line"></div>
+                    <i class="fas fa-bus bus-icon-mid"></i>
+                    <div class="line"></div>
+                    <span class="dot"></span>
+                </div>
+                <div class="time-block">
+                    <h2>${bus.arrivalTime}</h2>
+                    <p>Arrival</p>
+                </div>
+            </div>
+            <div class="bus-bottom">
+                <div class="price-seats">
+                    <div class="price">Rs. ${Number(bus.price).toLocaleString()}<span>/seat</span></div>
+                    <div class="seats ${seatClass}">${seatText}</div>
+                </div>
+                <button class="book-btn" onclick="goToBooking(${bus.id}, '${bus.origin}', '${bus.destination}', '${bus.departureTime}', '${bus.arrivalTime}', ${bus.price}, '${bus.operatorName}', '${bus.busType}')">
+                    <i class="fas fa-ticket-alt"></i> Book Now
+                </button>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+function goToBooking(routeId, origin, dest, dep, arr, price, op, type) {
+    if (!localStorage.getItem('routex_token')) {
+        if (confirm('You need to login to book. Go to login page?')) {
+            window.location.href = `login.html`;
+        }
+        return;
+    }
+    const p = new URLSearchParams({ routeId, origin, destination: dest, departureTime: dep,
+        arrivalTime: arr, price, operatorName: op, busType: type, date });
+    window.location.href = `booking.html?${p}`;
+}
+
+function applySort() { loadResults(0); }
+
+function renderPagination(page) {
+    if (!page.totalPages || page.totalPages <= 1) { document.getElementById('pagination').innerHTML = ''; return; }
+    let html = '';
+    for (let i = 0; i < page.totalPages; i++) {
+        html += `<button class="page-btn ${i === page.number ? 'active' : ''}" onclick="loadResults(${i})">${i + 1}</button>`;
+    }
+    document.getElementById('pagination').innerHTML = html;
+}
+
+function showNoResults(msg) {
+    document.getElementById('results-container').innerHTML = `
+        <div class="no-results">
+            <div class="no-results-icon">🚌</div>
+            <h3>No buses found</h3>
+            <p>${msg || 'No buses available for this route and date.'}</p>
+            <p style="font-size:0.85rem;opacity:0.7;margin-top:0.5rem;">
+                💡 Tip: Use the full city name — e.g. <b>Colombo (Pettah)</b>, 
+                <b>Makumbura (Colombo)</b>, <b>Katharagama</b>. 
+                Try a different date or swap From / To for the return trip.
+            </p>
+            <button onclick="location.href='index.html'" class="back-btn">← Back to Search</button>
+        </div>`;
+}
+
+function formatDate(dateStr) {
+    return new Date(dateStr).toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+}
+
+// Theme
+const toggleBtn = document.getElementById('theme-toggle');
+const icon = toggleBtn.querySelector('i');
+
+function updateThemeIcon(isLight) {
+    icon.className = isLight ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
+    toggleBtn.setAttribute('aria-label', isLight ? 'Switch to dark mode' : 'Switch to light mode');
+}
+
+const savedTheme = localStorage.getItem('theme');
+if (savedTheme === 'light') {
+    document.body.classList.add('light-mode');
+    updateThemeIcon(true);
+} else {
+    updateThemeIcon(false);
+}
+
+toggleBtn.addEventListener('click', () => {
+    document.body.classList.toggle('light-mode');
+    const isLight = document.body.classList.contains('light-mode');
+    localStorage.setItem('theme', isLight ? 'light' : 'dark');
+    updateThemeIcon(isLight);
+});
+
+loadLocations();
+loadResults();
+
+async function loadLocations() {
+    try {
+        const res = await fetch(`${API}/routes/locations`);
+        const json = await res.json();
+        if (json.success) {
+            const cities = json.data.origins || [];
+            const origList = document.getElementById('r-origins-list');
+            const destList = document.getElementById('r-dest-list');
+            cities.forEach(c => {
+                origList.innerHTML += `<option value="${c}">`;
+                destList.innerHTML += `<option value="${c}">`;
+            });
+        }
+    } catch(e) {}
+}
+</script>
+</body>
+</html>

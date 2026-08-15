@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RouteX – Login</title>
+    <link rel="icon" href="images/Logo.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/auth.css">
+</head>
+<body>
+
+<div class="auth-container">
+    <div class="auth-left">
+        <div class="auth-left-content">
+            <img src="images/Logo.png" alt="RouteX" style="height:60px; border-radius:12px;">
+            <h1>RouteX</h1>
+            <h2>Welcome Back!</h2>
+            <p>Login to book highway buses across Sri Lanka with ease.</p>
+            <div class="auth-features">
+                <div class="auth-feature"><i class="fas fa-qrcode"></i> QR Code Tickets</div>
+                <div class="auth-feature"><i class="fas fa-chair"></i> Live Seat Selection</div>
+                <div class="auth-feature"><i class="fas fa-history"></i> Booking History</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="auth-right">
+        <div class="auth-card">
+            <div class="auth-header">
+                <h2>Sign In</h2>
+                <p>New to RouteX? <a href="register.html">Create account</a></p>
+            </div>
+
+            <div id="error-msg" class="error-msg" style="display:none;"></div>
+            <div id="success-msg" class="success-msg" style="display:none;"></div>
+
+            <div class="form-group">
+                <label>Email Address</label>
+                <div class="input-icon">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" id="email" placeholder="you@example.com" required>
+                </div>
+                <span class="field-error" id="email-err"></span>
+            </div>
+
+            <div class="form-group">
+                <label>Password</label>
+                <div class="input-icon">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="password" placeholder="Enter your password" required>
+                    <button type="button" class="toggle-pass" onclick="togglePassword()">
+                        <i class="fas fa-eye" id="eye-icon"></i>
+                    </button>
+                </div>
+                <span class="field-error" id="pass-err"></span>
+            </div>
+
+            <div class="form-options">
+                <label class="remember">
+                    <input type="checkbox" id="remember"> Remember me
+                </label>
+                <a href="#" class="forgot">Forgot password?</a>
+            </div>
+
+            <button class="auth-btn" onclick="doLogin()" id="login-btn">
+                <span id="btn-text">Sign In</span>
+                <i class="fas fa-arrow-right"></i>
+            </button>
+
+            <div class="divider"><span>or continue with</span></div>
+            <div class="social-login">
+                <button class="social-btn"><i class="fab fa-google"></i> Google</button>
+                <button class="social-btn"><i class="fab fa-facebook"></i> Facebook</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const API = 'http://localhost:8080/api';
+
+// If already logged in, redirect
+if (localStorage.getItem('routex_token')) {
+    window.location.href = 'index.html';
+}
+
+async function doLogin() {
+    clearErrors();
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+
+    if (!email) { showFieldErr('email-err', 'Email is required'); return; }
+    if (!password) { showFieldErr('pass-err', 'Password is required'); return; }
+
+    setLoading(true);
+    try {
+        const res = await fetch(`${API}/auth/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ email, password })
+        });
+        const json = await res.json();
+
+        if (json.success) {
+            localStorage.setItem('routex_token', json.data.token);
+            localStorage.setItem('routex_user', JSON.stringify({
+                email: json.data.email,
+                fullName: json.data.fullName,
+                role: json.data.role
+            }));
+            showSuccess('Login successful! Redirecting...');
+            setTimeout(() => {
+                if (json.data.role === 'ADMIN') {
+                    window.location.href = 'admin.html';
+                } else {
+                    window.location.href = 'index.html';
+                }
+            }, 800);
+        } else {
+            showError(json.message || 'Login failed. Please try again.');
+        }
+    } catch (e) {
+        showError('Connection error. Please ensure the server is running.');
+    } finally {
+        setLoading(false);
+    }
+}
+
+// Enter key support
+document.addEventListener('keypress', e => { if (e.key === 'Enter') doLogin(); });
+
+function togglePassword() {
+    const pass = document.getElementById('password');
+    const icon = document.getElementById('eye-icon');
+    if (pass.type === 'password') {
+        pass.type = 'text';
+        icon.className = 'fas fa-eye-slash';
+    } else {
+        pass.type = 'password';
+        icon.className = 'fas fa-eye';
+    }
+}
+
+function setLoading(loading) {
+    const btn = document.getElementById('login-btn');
+    const text = document.getElementById('btn-text');
+    btn.disabled = loading;
+    text.textContent = loading ? 'Signing In...' : 'Sign In';
+    btn.style.opacity = loading ? '0.7' : '1';
+}
+function clearErrors() {
+    document.getElementById('error-msg').style.display = 'none';
+    document.getElementById('success-msg').style.display = 'none';
+    document.querySelectorAll('.field-error').forEach(e => e.textContent = '');
+}
+function showError(msg) { const el = document.getElementById('error-msg'); el.textContent = msg; el.style.display = 'block'; }
+function showSuccess(msg) { const el = document.getElementById('success-msg'); el.textContent = msg; el.style.display = 'block'; }
+function showFieldErr(id, msg) { document.getElementById(id).textContent = msg; }
+</script>
+</body>
+</html>

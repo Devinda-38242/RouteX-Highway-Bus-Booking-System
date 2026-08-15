@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RouteX – Book Ticket</title>
+    <link rel="icon" href="images/Logo.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/booking.css">
+</head>
+<body>
+
+<div class="navbar">
+    <div class="brand" onclick="location.href='index.html'">
+        <img src="images/Logo.png" alt="Logo" class="nav-logo">
+        <h2>RouteX</h2>
+    </div>
+    <button onclick="location.href='index.html'" class="home-btn"><i class="fas fa-home"></i> Home</button>
+</div>
+
+<div class="booking-container">
+    <!-- LEFT: Journey Info + Form -->
+    <div class="booking-left">
+
+        <!-- Journey Summary -->
+        <div class="journey-card">
+            <div class="journey-header">
+                <h2 id="route-display">Loading...</h2>
+                <span class="journey-date" id="date-display"></span>
+            </div>
+            <div class="journey-times">
+                <div class="time-block">
+                    <span class="time" id="dep-time">--:--</span>
+                    <span class="label">Departure</span>
+                </div>
+                <div class="journey-line">
+                    <span></span>
+                    <i class="fas fa-bus"></i>
+                    <span></span>
+                </div>
+                <div class="time-block">
+                    <span class="time" id="arr-time">--:--</span>
+                    <span class="label">Arrival</span>
+                </div>
+            </div>
+            <div class="journey-meta">
+                <div><span class="meta-label">Operator</span><span id="operator-name">-</span></div>
+                <div><span class="meta-label">Bus Type</span><span id="bus-type-display">-</span></div>
+                <div><span class="meta-label">Price/Seat</span><span id="price-display">-</span></div>
+                <div><span class="meta-label">Bus Bay</span><span id="bus-bay">B-6</span></div>
+            </div>
+        </div>
+
+        <!-- Passenger Details -->
+        <div class="card">
+            <h3><i class="fas fa-user-circle"></i> Passenger Details</h3>
+            <div id="form-error" class="error-msg" style="display:none;"></div>
+
+            <div class="form-group">
+                <label>Full Name</label>
+                <input type="text" id="passenger-name" placeholder="e.g. Kamal Perera" required>
+                <span class="field-err" id="name-err"></span>
+            </div>
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="passenger-email" placeholder="you@example.com" required>
+                <span class="field-err" id="email-err"></span>
+            </div>
+            <div class="form-group">
+                <label>Phone</label>
+                <input type="tel" id="passenger-phone" placeholder="0771234567" maxlength="10">
+                <span class="field-err" id="phone-err"></span>
+            </div>
+
+            <div class="otp-section" id="otp-area" style="display:none;">
+                <div class="otp-header">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>Verify your email with OTP</span>
+                </div>
+                <button class="btn-secondary" onclick="sendOTP()" id="send-otp-btn">Send OTP to Email</button>
+                <div id="otp-input-area" style="display:none; margin-top:12px;">
+                    <input type="text" id="otp-code" placeholder="Enter 6-digit OTP" maxlength="6" style="width:100%;padding:12px;border-radius:10px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:#fff;font-size:16px;letter-spacing:4px;text-align:center;">
+                    <button class="btn-primary" onclick="verifyOTP()" style="margin-top:8px;width:100%;">Verify OTP</button>
+                </div>
+                <p id="otp-status" class="otp-status"></p>
+            </div>
+        </div>
+
+        <!-- Seat Selection -->
+        <div class="card">
+            <h3><i class="fas fa-chair"></i> Select Seats</h3>
+            <div class="seat-legend">
+                <span><span class="seat-dot available"></span> Available</span>
+                <span><span class="seat-dot booked"></span> Booked</span>
+                <span><span class="seat-dot selected"></span> Selected</span>
+            </div>
+            <!-- Bus layout -->
+            <div class="bus-body">
+                <div class="driver-area">
+                    <i class="fas fa-steering-wheel"></i>
+                    <span>Driver</span>
+                </div>
+                <div class="seat-grid" id="seat-grid">
+                    <!-- Generated by JS -->
+                </div>
+            </div>
+            <div class="selected-seats-info">
+                <span>Selected: </span>
+                <span id="selected-seats-display" class="selected-tags">None</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- RIGHT: Order Summary + Pay -->
+    <div class="booking-right">
+        <div class="summary-card" id="summary-card">
+            <h3><i class="fas fa-receipt"></i> Booking Summary</h3>
+            <div class="summary-row"><span>Route</span><span id="s-route">-</span></div>
+            <div class="summary-row"><span>Date</span><span id="s-date">-</span></div>
+            <div class="summary-row"><span>Departure</span><span id="s-dep">-</span></div>
+            <div class="summary-row"><span>Seats</span><span id="s-seats">None</span></div>
+            <div class="summary-row"><span>Seat Count</span><span id="s-count">0</span></div>
+            <div class="summary-row"><span>Price/Seat</span><span id="s-price-unit">Rs. 0</span></div>
+            <div class="summary-divider"></div>
+            <div class="summary-row total"><span>Total</span><span id="s-total">Rs. 0</span></div>
+
+            <button class="confirm-btn" onclick="confirmBooking()" id="confirm-btn" disabled>
+                <i class="fas fa-lock"></i> Confirm & Pay
+            </button>
+            <p class="secure-note"><i class="fas fa-shield-alt"></i> Secure 256-bit encrypted payment</p>
+        </div>
+
+    </div>
+</div>
+
+<!-- WebSocket for live seat updates -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+<script src="js/booking.js"></script>
+</body>
+</html>

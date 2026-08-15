@@ -1,0 +1,1135 @@
+<!DOCTYPE html>
+<!--suppress ALL -->
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Admin Dashboard – RouteX</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="css/home.css"/>
+<style>
+  .admin-layout { display: flex; min-height: 100vh; }
+
+  /* Sidebar */
+  .sidebar {
+    width: 240px;
+    background: rgba(13,27,75,0.95);
+    border-right: 1px solid var(--glass-border);
+    padding: 1.5rem 0;
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    backdrop-filter: blur(20px);
+  }
+  .sidebar-logo {
+    font-size: 1.4rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    padding: 0 1.5rem 1.5rem;
+    border-bottom: 1px solid var(--glass-border);
+    margin-bottom: 1.2rem;
+  }
+  .sidebar-logo small { display: block; font-size: 0.65rem; color: var(--text-muted); -webkit-text-fill-color: var(--text-muted); margin-top: 0.2rem; font-weight: 400; }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 0.85rem 1.5rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.88rem;
+    font-weight: 500;
+    border: none;
+    background: transparent;
+    width: 100%;
+    text-align: left;
+    font-family: 'Poppins', sans-serif;
+  }
+  .nav-item:hover { color: var(--accent); background: rgba(79,142,247,0.08); }
+  .nav-item.active { color: var(--accent); background: rgba(79,142,247,0.12); border-left: 3px solid var(--accent); }
+  .nav-item .nav-icon { font-size: 1.1rem; width: 22px; text-align: center; }
+  .sidebar-footer { margin-top: auto; padding: 1rem 1.5rem; border-top: 1px solid var(--glass-border); }
+  .admin-badge {
+    background: linear-gradient(135deg, rgba(79,142,247,0.2), rgba(124,58,237,0.2));
+    border: 1px solid rgba(79,142,247,0.3);
+    border-radius: 10px;
+    padding: 0.8rem;
+    text-align: center;
+  }
+  .admin-badge .admin-name { font-size: 0.85rem; font-weight: 600; color: #fff; }
+  .admin-badge .admin-role { font-size: 0.7rem; color: var(--accent); }
+
+  /* Main content */
+  .main-content {
+    margin-left: 240px;
+    flex: 1;
+    padding: 2rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Header */
+  .content-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+  }
+  .content-header h1 { font-size: 1.6rem; font-weight: 800; color: #fff; }
+  .content-header p  { color: var(--text-muted); font-size: 0.85rem; margin-top: 0.2rem; }
+  .btn-logout {
+    background: transparent;
+    border: 1px solid rgba(239,68,68,0.4);
+    color: var(--danger);
+    padding: 0.5rem 1.2rem;
+    border-radius: 8px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-logout:hover { background: rgba(239,68,68,0.1); }
+
+  /* Stat cards */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1.2rem;
+    margin-bottom: 2rem;
+  }
+  .stat-card {
+    background: var(--card-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 14px;
+    padding: 1.5rem;
+    backdrop-filter: blur(20px);
+    position: relative;
+    overflow: hidden;
+    animation: fadeUp 0.4s ease both;
+  }
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: -20px; right: -20px;
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    opacity: 0.1;
+  }
+  .stat-card:nth-child(1)::before { background: var(--accent); }
+  .stat-card:nth-child(2)::before { background: var(--success); }
+  .stat-card:nth-child(3)::before { background: var(--warning); }
+  .stat-card:nth-child(4)::before { background: var(--accent-2); }
+  .stat-icon { font-size: 1.8rem; margin-bottom: 0.8rem; }
+  .stat-value { font-size: 2rem; font-weight: 800; color: #fff; }
+  .stat-label { font-size: 0.8rem; color: var(--text-muted); margin-top: 0.2rem; }
+  @keyframes fadeUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+
+  /* Tabs */
+  .tab-bar {
+    display: flex;
+    gap: 0.5rem;
+    border-bottom: 1px solid var(--glass-border);
+    margin-bottom: 1.5rem;
+  }
+  .tab-btn {
+    padding: 0.7rem 1.5rem;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--text-muted);
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .tab-btn:hover { color: var(--accent); }
+  .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* Table */
+  .table-card {
+    background: var(--card-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    backdrop-filter: blur(20px);
+    overflow: hidden;
+  }
+  .table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.2rem 1.5rem;
+    border-bottom: 1px solid var(--glass-border);
+    flex-wrap: wrap;
+    gap: 0.8rem;
+  }
+  .table-header h3 { font-size: 1rem; font-weight: 700; color: #fff; }
+  .table-controls { display: flex; gap: 0.7rem; align-items: center; }
+
+  .search-input {
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    padding: 0.45rem 0.9rem;
+    color: var(--text);
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.82rem;
+    outline: none;
+    width: 220px;
+  }
+  .search-input:focus { border-color: var(--accent); }
+  .search-input::placeholder { color: var(--text-muted); }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    border: none;
+    color: #fff;
+    padding: 0.5rem 1.2rem;
+    border-radius: 8px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.2s;
+  }
+  .btn-primary:hover { opacity: 0.85; transform: translateY(-1px); }
+
+  .data-table { width: 100%; border-collapse: collapse; }
+  .data-table th {
+    text-align: left;
+    padding: 0.9rem 1.2rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--glass-border);
+    background: rgba(255,255,255,0.02);
+  }
+  .data-table td {
+    padding: 1rem 1.2rem;
+    font-size: 0.85rem;
+    color: var(--text);
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    vertical-align: middle;
+  }
+  .data-table tr:last-child td { border-bottom: none; }
+  .data-table tr:hover td { background: rgba(79,142,247,0.04); }
+
+  .status-pill {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+  .status-pill.confirmed  { background:rgba(16,185,129,0.15); color:var(--success); }
+  .status-pill.pending    { background:rgba(245,158,11,0.15); color:var(--warning); }
+  .status-pill.cancelled  { background:rgba(239,68,68,0.15);  color:var(--danger);  }
+  .status-pill.active     { background:rgba(16,185,129,0.15); color:var(--success); }
+  .status-pill.inactive   { background:rgba(239,68,68,0.15);  color:var(--danger);  }
+
+  .action-btns { display: flex; gap: 0.4rem; }
+  .btn-edit {
+    background: rgba(79,142,247,0.15);
+    border: 1px solid rgba(79,142,247,0.3);
+    color: var(--accent);
+    padding: 0.35rem 0.75rem;
+    border-radius: 7px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    font-family: 'Poppins', sans-serif;
+    transition: all 0.2s;
+  }
+  .btn-edit:hover { background: rgba(79,142,247,0.25); }
+  .btn-delete {
+    background: rgba(239,68,68,0.1);
+    border: 1px solid rgba(239,68,68,0.3);
+    color: var(--danger);
+    padding: 0.35rem 0.75rem;
+    border-radius: 7px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    font-family: 'Poppins', sans-serif;
+    transition: all 0.2s;
+  }
+  .btn-delete:hover { background: rgba(239,68,68,0.2); }
+
+  .table-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    border-top: 1px solid var(--glass-border);
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    flex-wrap: wrap;
+    gap: 0.8rem;
+  }
+  .pagination { display: flex; gap: 0.4rem; }
+  .page-btn {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    border: 1px solid var(--glass-border);
+    background: var(--glass);
+    color: var(--text-muted);
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .page-btn:hover, .page-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* Scrollable table wrapper */
+  .table-wrapper { overflow-x: auto; }
+
+  /* Modal */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.8);
+    backdrop-filter: blur(8px);
+    z-index: 9999;
+    display: none; align-items: center; justify-content: center;
+    padding: 1rem;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal-box {
+    background: #0d1b4b;
+    border: 1px solid rgba(79,142,247,0.3);
+    border-radius: 20px;
+    padding: 2rem;
+    max-width: 560px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: scaleIn 0.3s cubic-bezier(0.34,1.56,0.64,1) both;
+  }
+  @keyframes scaleIn { from{opacity:0;transform:scale(0.88)} to{opacity:1;transform:scale(1)} }
+  .modal-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 1.5rem;
+  }
+  .modal-header h3 { font-size: 1.1rem; font-weight: 700; color: #fff; }
+  .modal-close {
+    background: transparent; border: none; color: var(--text-muted);
+    font-size: 1.3rem; cursor: pointer; transition: color 0.2s; line-height: 1;
+  }
+  .modal-close:hover { color: #fff; }
+  .form-group { display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 1rem; }
+  .form-label { font-size: 0.78rem; color: var(--text-muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; }
+  .form-input {
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    padding: 0.75rem 1rem;
+    color: var(--text);
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.88rem;
+    outline: none;
+    width: 100%;
+    transition: border-color 0.2s;
+  }
+  .form-input:focus { border-color: var(--accent); }
+  .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .modal-actions { display: flex; gap: 1rem; margin-top: 1.5rem; }
+  .btn-save {
+    flex: 1; padding: 0.85rem;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    border: none; border-radius: 10px; color: #fff;
+    font-family: 'Poppins', sans-serif; font-size: 0.9rem; font-weight: 700; cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  .btn-save:hover { opacity: 0.85; }
+  .btn-cancel-modal {
+    flex: 1; padding: 0.85rem;
+    background: transparent; border: 1px solid var(--glass-border); border-radius: 10px;
+    color: var(--text-muted); font-family: 'Poppins', sans-serif; font-size: 0.9rem; cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-cancel-modal:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* Skeleton */
+  .skeleton { background: linear-gradient(90deg, var(--glass) 25%, rgba(255,255,255,0.08) 50%, var(--glass) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 6px; }
+  @keyframes shimmer { to { background-position: -200% 0; } }
+  .sk-row { height: 52px; margin-bottom: 0.5rem; }
+
+  /* Toast */
+  .toast-container { position: fixed; top: 1.5rem; right: 1.5rem; z-index: 10000; display: flex; flex-direction: column; gap: 0.5rem; }
+  .toast { background: var(--card-bg); border: 1px solid var(--glass-border); border-radius: 12px; padding: 0.85rem 1.2rem; display: flex; align-items: center; gap: 0.7rem; font-size: 0.83rem; backdrop-filter: blur(20px); animation: slideIn 0.3s ease; box-shadow: 0 4px 20px rgba(0,0,0,0.3); max-width: 300px; }
+  @keyframes slideIn { from{opacity:0;transform:translateX(100%)} to{opacity:1;transform:translateX(0)} }
+  .toast.success { border-left: 3px solid var(--success); }
+  .toast.error   { border-left: 3px solid var(--danger); }
+
+  @media (max-width: 768px) {
+    .sidebar { transform: translateX(-100%); transition: transform 0.3s; }
+    .sidebar.open { transform: translateX(0); }
+    .main-content { margin-left: 0; padding: 1rem; }
+    .stats-grid { grid-template-columns: 1fr 1fr; }
+    .form-row-2 { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="admin-layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      🚌 RouteX
+      <small>Admin Dashboard</small>
+    </div>
+    <button class="nav-item active" onclick="switchTab('overview')" id="nav-overview">
+      <span class="nav-icon">📊</span> Overview
+    </button>
+    <button class="nav-item" onclick="switchTab('routes')" id="nav-routes">
+      <span class="nav-icon">🗺️</span> Manage Routes
+    </button>
+    <button class="nav-item" onclick="switchTab('bookings')" id="nav-bookings">
+      <span class="nav-icon">🎫</span> All Bookings
+    </button>
+    <button class="nav-item" onclick="switchTab('users')" id="nav-users">
+      <span class="nav-icon">👥</span> Users
+    </button>
+    <div class="sidebar-footer">
+      <div class="admin-badge">
+        <div class="admin-name" id="adminName">Admin</div>
+        <div class="admin-role">⭐ Super Admin</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main-content">
+    <div class="content-header">
+      <div>
+        <h1 id="pageTitle">Overview</h1>
+        <p id="pageSubtitle">Welcome back, Admin</p>
+      </div>
+      <button class="btn-logout" onclick="logout()">🔓 Logout</button>
+    </div>
+
+    <!-- ── Overview Tab ── -->
+    <div class="tab-content active" id="tab-overview">
+      <div class="stats-grid" id="statsGrid">
+        <div class="stat-card" style="animation-delay:0s">
+          <div class="stat-icon">🗺️</div>
+          <div class="stat-value" id="stat-routes">—</div>
+          <div class="stat-label">Total Routes</div>
+        </div>
+        <div class="stat-card" style="animation-delay:0.08s">
+          <div class="stat-icon">🎫</div>
+          <div class="stat-value" id="stat-bookings">—</div>
+          <div class="stat-label">Total Bookings</div>
+        </div>
+        <div class="stat-card" style="animation-delay:0.16s">
+          <div class="stat-icon">✅</div>
+          <div class="stat-value" id="stat-confirmed">—</div>
+          <div class="stat-label">Confirmed</div>
+        </div>
+        <div class="stat-card" style="animation-delay:0.24s">
+          <div class="stat-icon">💰</div>
+          <div class="stat-value" id="stat-revenue">—</div>
+          <div class="stat-label">Est. Revenue (Rs.)</div>
+        </div>
+      </div>
+
+      <!-- Recent Bookings -->
+      <div class="table-card">
+        <div class="table-header"><h3>📋 Recent Bookings</h3></div>
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Reference</th><th>Passenger</th><th>Route</th><th>Date</th><th>Amount</th><th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="recentBookingsBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Routes Tab ── -->
+    <div class="tab-content" id="tab-routes">
+      <div class="table-card">
+        <div class="table-header">
+          <h3>🗺️ Bus Routes</h3>
+          <div class="table-controls">
+            <input type="text" class="search-input" id="routeSearch" placeholder="🔍 Search routes…" oninput="filterRoutesTable()"/>
+            <button class="btn-primary" onclick="openRouteModal()">+ Add Route</button>
+          </div>
+        </div>
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Route</th><th>Departure</th><th>Arrival</th><th>Type</th><th>Price (Rs.)</th><th>Seats</th><th>Bay</th><th>Status</th><th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="routesBody"></tbody>
+          </table>
+        </div>
+        <div class="table-footer">
+          <span id="routeCount">Loading…</span>
+          <div class="pagination" id="routePagination"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Bookings Tab ── -->
+    <div class="tab-content" id="tab-bookings">
+      <div class="table-card">
+        <div class="table-header">
+          <h3>🎫 All Bookings</h3>
+          <div class="table-controls">
+            <select class="search-input" id="bookingStatusFilter" onchange="loadAllBookings(0)" style="width:160px">
+              <option value="">All Statuses</option>
+              <option value="CONFIRMED">Confirmed</option>
+              <option value="PENDING">Pending</option>
+              <option value="CANCELLED">Cancelled</option>
+            </select>
+          </div>
+        </div>
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Reference</th><th>Passenger</th><th>Route</th><th>Travel Date</th><th>Seats</th><th>Amount</th><th>Status</th><th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="allBookingsBody"></tbody>
+          </table>
+        </div>
+        <div class="table-footer">
+          <span id="bookingCount">Loading…</span>
+          <div class="pagination" id="bookingPagination"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Users Tab ── -->
+    <div class="tab-content" id="tab-users">
+      <div class="table-card">
+        <div class="table-header">
+          <h3>👥 Registered Users</h3>
+          <div class="table-controls">
+            <span id="userCount">Loading…</span>
+          </div>
+        </div>
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr><th>Name</th><th>Email</th><th>Phone</th><th>Role</th><th>Status</th><th>Joined</th><th>Actions</th></tr>
+            </thead>
+            <tbody id="usersBody"></tbody>
+          </table>
+        </div>
+        <div class="table-footer">
+          <div class="pagination" id="userPagination"></div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- Route Modal -->
+<div class="modal-overlay" id="routeModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3 id="modalTitle">Add New Route</h3>
+      <button class="modal-close" onclick="closeRouteModal()">✕</button>
+    </div>
+    <div class="form-row-2">
+      <div class="form-group">
+        <label class="form-label">Origin *</label>
+        <input type="text" class="form-input" id="r-origin" placeholder="e.g. Colombo"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Destination *</label>
+        <input type="text" class="form-input" id="r-destination" placeholder="e.g. Katharagama"/>
+      </div>
+    </div>
+    <div class="form-row-2">
+      <div class="form-group">
+        <label class="form-label">Departure Time *</label>
+        <input type="time" class="form-input" id="r-departure"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Arrival Time *</label>
+        <input type="time" class="form-input" id="r-arrival"/>
+      </div>
+    </div>
+    <div class="form-row-2">
+      <div class="form-group">
+        <label class="form-label">Bus Type *</label>
+        <select class="form-input" id="r-busType">
+          <option value="NORMAL">Normal</option>
+          <option value="SEMI_LUXURY">Semi Luxury</option>
+          <option value="LUXURY">Luxury</option>
+          <option value="SUPER_LUXURY">Super Luxury</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Bus Bay</label>
+        <input type="text" class="form-input" id="r-bay" placeholder="e.g. B-6"/>
+      </div>
+    </div>
+    <div class="form-row-2">
+      <div class="form-group">
+        <label class="form-label">Price per Seat (Rs.) *</label>
+        <input type="number" class="form-input" id="r-price" placeholder="750"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Total Seats *</label>
+        <input type="number" class="form-input" id="r-seats" placeholder="45" value="45"/>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Operator Name</label>
+      <input type="text" class="form-input" id="r-operator" placeholder="e.g. Lanka Ashok Leyland"/>
+    </div>
+    <div class="form-row-2">
+      <div class="form-group">
+        <label class="form-label">Contact Number</label>
+        <input type="text" class="form-input" id="r-contact" placeholder="011-XXXXXXX"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Status</label>
+        <select class="form-input" id="r-active">
+          <option value="true">Active</option>
+          <option value="false">Inactive</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel-modal" onclick="closeRouteModal()">Cancel</button>
+      <button class="btn-save" onclick="saveRoute()" id="saveRouteBtn">Save Route</button>
+    </div>
+  </div>
+</div>
+
+<!-- User Modal -->
+<div class="modal-overlay" id="userModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3 id="userModalTitle">Edit User</h3>
+      <button class="modal-close" onclick="closeUserModal()">✕</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Full Name *</label>
+      <input type="text" class="form-input" id="u-fullName" placeholder="John Doe"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Email *</label>
+      <input type="email" class="form-input" id="u-email" placeholder="john@example.com"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Phone</label>
+      <input type="text" class="form-input" id="u-phone" placeholder="e.g. 0711234567"/>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel-modal" onclick="closeUserModal()">Cancel</button>
+      <button class="btn-save" onclick="saveUser()" id="saveUserBtn">Save User</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+const API = '';
+const token = localStorage.getItem('routex_token');
+if (!token) { window.location.href = 'login.html'; }
+
+// Check admin role
+const user = JSON.parse(localStorage.getItem('routex_user') || '{}');
+if (user.role !== 'ADMIN') { window.location.href = 'index.html'; }
+document.getElementById('adminName').textContent = user.fullName || 'Admin';
+document.getElementById('pageSubtitle').textContent = `Welcome back, ${user.fullName || 'Admin'}`;
+
+function authHeaders() {
+  return { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+}
+
+// ── Tab Navigation ──
+function switchTab(tab) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById(`tab-${tab}`).classList.add('active');
+  document.getElementById(`nav-${tab}`).classList.add('active');
+
+  const titles = { overview:'Overview', routes:'Manage Routes', bookings:'All Bookings', users:'Users' };
+  document.getElementById('pageTitle').textContent = titles[tab];
+
+  if (tab === 'overview') loadOverview();
+  if (tab === 'routes')   loadRoutes(0);
+  if (tab === 'bookings') loadAllBookings(0);
+  if (tab === 'users')    loadUsers();
+}
+
+// ── Overview ──
+async function loadOverview() {
+  try {
+    // Load routes count
+    const rRes = await fetch(`${API}/api/admin/routes?page=0&size=1`, { headers: authHeaders() });
+    if (!rRes.ok) throw new Error(`Routes failed: ${rRes.statusText}`);
+    const rData = await rRes.json();
+    if (!rData.success) throw new Error(rData.message || 'Failed to fetch routes');
+    document.getElementById('stat-routes').textContent = rData.data.totalElements;
+
+    // Load bookings stats
+    const bRes = await fetch(`${API}/api/admin/bookings?page=0&size=5`, { headers: authHeaders() });
+    if (!bRes.ok) throw new Error(`Bookings failed: ${bRes.statusText}`);
+    const bData = await bRes.json();
+    if (!bData.success) throw new Error(bData.message || 'Failed to fetch bookings');
+    
+    const pg = bData.data;
+    document.getElementById('stat-bookings').textContent = pg.totalElements;
+    const confirmed = pg.content.filter(b => b.status === 'CONFIRMED').length;
+    document.getElementById('stat-confirmed').textContent = confirmed;
+    const revenue = pg.content.reduce((s, b) => s + (b.status !== 'CANCELLED' ? b.totalAmount : 0), 0);
+    document.getElementById('stat-revenue').textContent = revenue.toLocaleString();
+
+    // Recent table
+    const tbody = document.getElementById('recentBookingsBody');
+    tbody.innerHTML = pg.content.map(b => `
+      <tr>
+        <td><code style="color:var(--accent);font-size:0.78rem">${b.bookingReference}</code></td>
+        <td>${b.passengerName}</td>
+        <td>${b.origin} → ${b.destination}</td>
+        <td>${formatDate(b.travelDate)}</td>
+        <td>Rs. ${b.totalAmount.toLocaleString()}</td>
+        <td><span class="status-pill ${b.status.toLowerCase()}">${b.status}</span></td>
+      </tr>`).join('');
+  } catch(e) {
+    console.error(e);
+    showToast(e.message || 'Failed to load overview data', 'error');
+  }
+}
+
+// ── Routes ──
+let allRoutesData = [];
+let routePage = 0;
+
+async function loadRoutes(page = 0) {
+  routePage = page;
+  const tbody = document.getElementById('routesBody');
+  tbody.innerHTML = [1,2,3,4].map(() => `<tr><td colspan="9"><div class="skeleton sk-row"></div></td></tr>`).join('');
+  try {
+    const res = await fetch(`${API}/api/admin/routes?page=${page}&size=10`, { headers: authHeaders() });
+    if (!res.ok) throw new Error(`HTTP error: ${res.status}`);
+    const data = await res.json();
+    if (data.success) {
+      const pg = data.data;
+      allRoutesData = pg.content;
+      renderRoutesTable(pg.content);
+      document.getElementById('routeCount').textContent = `${pg.totalElements} routes total`;
+      renderPagination('routePagination', pg.totalPages, pg.number, loadRoutes);
+    } else {
+      throw new Error(data.message || 'Failed to load routes');
+    }
+  } catch(e) {
+    tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:var(--text-muted);padding:2rem">Failed to load</td></tr>`;
+    showToast(e.message || 'Failed to load routes', 'error');
+  }
+}
+
+function renderRoutesTable(routes) {
+  const tbody = document.getElementById('routesBody');
+  if (!routes.length) {
+    tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;color:var(--text-muted);padding:2rem">No routes found</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = routes.map(r => `
+    <tr>
+      <td><strong>${r.origin}</strong> → <strong>${r.destination}</strong></td>
+      <td>${r.departureTime}</td>
+      <td>${r.arrivalTime}</td>
+      <td>${r.busType.replace(/_/g,' ')}</td>
+      <td><strong>Rs. ${r.price.toLocaleString()}</strong></td>
+      <td>${r.totalSeats}</td>
+      <td>${r.busBay || '—'}</td>
+      <td><span class="status-pill ${r.active ? 'active' : 'inactive'}">${r.active ? 'Active' : 'Inactive'}</span></td>
+      <td>
+        <div class="action-btns">
+          <button class="btn-edit" onclick="editRoute(${JSON.stringify(r).replace(/"/g,'&quot;')})">✏️ Edit</button>
+          <button class="btn-delete" onclick="deleteRoute(${r.id},'${r.origin} → ${r.destination}')">🗑️</button>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+function filterRoutesTable() {
+  const q = document.getElementById('routeSearch').value.toLowerCase();
+  const filtered = allRoutesData.filter(r =>
+    r.origin.toLowerCase().includes(q) || r.destination.toLowerCase().includes(q) ||
+    r.operatorName?.toLowerCase().includes(q)
+  );
+  renderRoutesTable(filtered);
+}
+
+// Route Modal
+let editingRouteId = null;
+function openRouteModal(route = null) {
+  editingRouteId = route ? route.id : null;
+  document.getElementById('modalTitle').textContent = route ? 'Edit Route' : 'Add New Route';
+  document.getElementById('r-origin').value     = route?.origin || '';
+  document.getElementById('r-destination').value = route?.destination || '';
+  document.getElementById('r-departure').value  = route?.departureTime || '';
+  document.getElementById('r-arrival').value    = route?.arrivalTime || '';
+  document.getElementById('r-busType').value    = route?.busType || 'NORMAL';
+  document.getElementById('r-bay').value        = route?.busBay || '';
+  document.getElementById('r-price').value      = route?.price || '';
+  document.getElementById('r-seats').value      = route?.totalSeats || 45;
+  document.getElementById('r-operator').value   = route?.operatorName || '';
+  document.getElementById('r-contact').value    = route?.contactNumber || '';
+  document.getElementById('r-active').value     = route ? String(route.active) : 'true';
+  document.getElementById('routeModal').classList.add('show');
+}
+function editRoute(r) { openRouteModal(r); }
+function closeRouteModal() { document.getElementById('routeModal').classList.remove('show'); editingRouteId = null; }
+
+async function saveRoute() {
+  const btn = document.getElementById('saveRouteBtn');
+  const body = {
+    origin:        document.getElementById('r-origin').value.trim(),
+    destination:   document.getElementById('r-destination').value.trim(),
+    departureTime: document.getElementById('r-departure').value,
+    arrivalTime:   document.getElementById('r-arrival').value,
+    busType:       document.getElementById('r-busType').value,
+    busBay:        document.getElementById('r-bay').value.trim(),
+    price:         parseFloat(document.getElementById('r-price').value),
+    totalSeats:    parseInt(document.getElementById('r-seats').value),
+    operatorName:  document.getElementById('r-operator').value.trim(),
+    contactNumber: document.getElementById('r-contact').value.trim(),
+    active:        document.getElementById('r-active').value === 'true',
+  };
+  if (!body.origin || !body.destination || !body.departureTime || !body.price) {
+    showToast('Please fill all required fields', 'error'); return;
+  }
+  btn.textContent = 'Saving…'; btn.disabled = true;
+  try {
+    const url    = editingRouteId ? `${API}/api/admin/routes/${editingRouteId}` : `${API}/api/admin/routes`;
+    const method = editingRouteId ? 'PUT' : 'POST';
+    const res  = await fetch(url, { method, headers: authHeaders(), body: JSON.stringify(body) });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.message || `HTTP error: ${res.status}`);
+    }
+    if (data.success) {
+      showToast(editingRouteId ? 'Route updated!' : 'Route created!', 'success');
+      closeRouteModal(); loadRoutes(routePage);
+    } else {
+      throw new Error(data.message || 'Failed to save');
+    }
+  } catch(e) {
+    showToast(e.message || 'Network error', 'error');
+  } finally {
+    btn.textContent = 'Save Route'; btn.disabled = false;
+  }
+}
+
+async function deleteRoute(id, name) {
+  if (!confirm(`Delete route "${name}"? This cannot be undone.`)) return;
+  try {
+    const res  = await fetch(`${API}/api/admin/routes/${id}`, { method: 'DELETE', headers: authHeaders() });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.message || `HTTP error: ${res.status}`);
+    }
+    if (data.success) {
+      showToast('Route deleted', 'success');
+      loadRoutes(routePage);
+    } else {
+      throw new Error(data.message || 'Delete failed');
+    }
+  } catch(e) {
+    showToast(e.message || 'Network error', 'error');
+  }
+}
+
+// ── All Bookings ──
+async function loadAllBookings(page = 0) {
+  const tbody = document.getElementById('allBookingsBody');
+  tbody.innerHTML = [1,2,3,4].map(() => `<tr><td colspan="8"><div class="skeleton sk-row"></div></td></tr>`).join('');
+  try {
+    const status = document.getElementById('bookingStatusFilter').value;
+    const params = new URLSearchParams({ page, size: 10, sort: 'createdAt,desc' });
+    if (status) params.set('status', status);
+    const res  = await fetch(`${API}/api/admin/bookings?${params}`, { headers: authHeaders() });
+    if (!res.ok) {
+      throw new Error(`HTTP error: ${res.status}`);
+    }
+    const data = await res.json();
+    if (data.success) {
+      const pg = data.data;
+      document.getElementById('bookingCount').textContent = `${pg.totalElements} bookings`;
+      document.getElementById('stat-confirmed').textContent = pg.totalElements;
+      tbody.innerHTML = pg.content.map(b => `
+        <tr>
+          <td><code style="color:var(--accent);font-size:0.78rem">${b.bookingReference}</code></td>
+          <td>${b.passengerName}</td>
+          <td>${b.origin} → ${b.destination}</td>
+          <td>${formatDate(b.travelDate)}</td>
+          <td>${b.seats ? b.seats.join(', ') : '—'}</td>
+          <td>Rs. ${b.totalAmount.toLocaleString()}</td>
+          <td><span class="status-pill ${b.status.toLowerCase()}">${b.status}</span></td>
+          <td>
+            ${b.status !== 'CANCELLED' ? `<button class="btn-delete" onclick="adminCancelBooking('${b.bookingReference}')">Cancel</button>` : '—'}
+          </td>
+        </tr>`).join('');
+      renderPagination('bookingPagination', pg.totalPages, pg.number, loadAllBookings);
+    } else {
+      throw new Error(data.message || 'Failed to load bookings');
+    }
+  } catch(e) {
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--text-muted);padding:2rem">Failed to load</td></tr>`;
+    showToast(e.message || 'Failed to load bookings', 'error');
+  }
+}
+
+async function adminCancelBooking(ref) {
+  if (!confirm(`Cancel booking ${ref}?`)) return;
+  try {
+    const res  = await fetch(`${API}/api/bookings/${ref}/cancel`, { method:'PUT', headers: authHeaders() });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.message || `HTTP error: ${res.status}`);
+    }
+    if (data.success) {
+      showToast('Booking cancelled', 'success');
+      loadAllBookings(0);
+    } else {
+      throw new Error(data.message || 'Failed');
+    }
+  } catch(e) {
+    showToast(e.message || 'Network error', 'error');
+  }
+}
+
+// ── Users ──
+let userPage = 0;
+async function loadUsers(page = 0) {
+  userPage = page;
+  const tbody = document.getElementById('usersBody');
+  tbody.innerHTML = [1,2,3,4].map(() => `<tr><td colspan="7"><div class="skeleton sk-row"></div></td></tr>`).join('');
+  try {
+    const res  = await fetch(`${API}/api/admin/users?page=${page}&size=10`, { headers: authHeaders() });
+    if (!res.ok) {
+      throw new Error(`HTTP error: ${res.status}`);
+    }
+    const data = await res.json();
+    if (data.success) {
+      const pg = data.data;
+      renderUsersTable(pg.content);
+      document.getElementById('userCount').textContent = `${pg.totalElements} users total`;
+      renderPagination('userPagination', pg.totalPages, pg.number, loadUsers);
+    } else {
+      throw new Error(data.message || 'Failed to load users');
+    }
+  } catch(e) { 
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:2rem">Failed to load</td></tr>`; 
+    showToast(e.message || 'Failed to load users', 'error');
+  }
+}
+
+function renderUsersTable(users) {
+  const tbody = document.getElementById('usersBody');
+  if (!users.length) {
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:2rem">No users found</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = users.map(u => {
+    const roleLabel = u.role;
+    const statusLabel = u.enabled ? 'Active' : 'Inactive';
+    const statusClass = u.enabled ? 'active' : 'inactive';
+    
+    return `
+      <tr>
+        <td><strong>${u.fullName}</strong></td>
+        <td>${u.email}</td>
+        <td>${u.phone || '—'}</td>
+        <td><span class="status-pill ${u.role === 'ADMIN' ? 'role-admin' : 'role-user'}" style="${u.role === 'ADMIN' ? 'background:rgba(124,58,237,0.2);color:#c084fc;border:1px solid rgba(124,58,237,0.4);' : 'background:rgba(79,142,247,0.2);color:#60a5fa;border:1px solid rgba(79,142,247,0.4);'}">${roleLabel}</span></td>
+        <td><span class="status-pill ${statusClass}">${statusLabel}</span></td>
+        <td>${formatDate(u.createdAt)}</td>
+        <td>
+          <div class="action-btns">
+            <button class="btn-edit" onclick="editUser(${JSON.stringify(u).replace(/"/g,'&quot;')})">✏️ Edit</button>
+            <button class="btn-edit" style="background:rgba(245,158,11,0.15);color:#fbbf24;border-color:rgba(245,158,11,0.3);" onclick="toggleUserRole(${u.id}, '${u.role}', '${u.email}')">🔄 Role</button>
+            <button class="btn-edit" style="background:rgba(16,185,129,0.15);color:#34d399;border-color:rgba(16,185,129,0.3);" onclick="toggleUserStatus(${u.id}, ${u.enabled}, '${u.email}')">Toggle Status</button>
+            <button class="btn-delete" onclick="deleteUser(${u.id}, '${u.fullName}')">🗑️</button>
+          </div>
+        </td>
+      </tr>`;
+  }).join('');
+}
+
+let editingUserId = null;
+function openUserModal(user = null) {
+  editingUserId = user ? user.id : null;
+  document.getElementById('userModalTitle').textContent = 'Edit User';
+  document.getElementById('u-fullName').value = user?.fullName || '';
+  document.getElementById('u-email').value = user?.email || '';
+  document.getElementById('u-phone').value = user?.phone || '';
+  document.getElementById('userModal').classList.add('show');
+}
+function editUser(u) { openUserModal(u); }
+function closeUserModal() { document.getElementById('userModal').classList.remove('show'); editingUserId = null; }
+
+async function saveUser() {
+  const btn = document.getElementById('saveUserBtn');
+  const body = {
+    fullName: document.getElementById('u-fullName').value.trim(),
+    email:    document.getElementById('u-email').value.trim(),
+    phone:    document.getElementById('u-phone').value.trim()
+  };
+  if (!body.fullName || !body.email) {
+    showToast('Please fill all required fields', 'error'); return;
+  }
+  btn.textContent = 'Saving…'; btn.disabled = true;
+  try {
+    const res  = await fetch(`${API}/api/admin/users/${editingUserId}`, {
+      method: 'PUT',
+      headers: authHeaders(),
+      body: JSON.stringify(body)
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.message || `HTTP error: ${res.status}`);
+    }
+    if (data.success) {
+      showToast('User updated!', 'success');
+      closeUserModal();
+      loadUsers(userPage);
+    } else {
+      throw new Error(data.message || 'Failed to save user');
+    }
+  } catch(e) {
+    showToast(e.message || 'Network error', 'error');
+  } finally {
+    btn.textContent = 'Save User';
+    btn.disabled = false;
+  }
+}
+
+async function toggleUserRole(id, currentRole, email) {
+  const newRole = currentRole === 'ADMIN' ? 'USER' : 'ADMIN';
+  if (!confirm(`Change role of ${email} to ${newRole}?`)) return;
+  try {
+    const res = await fetch(`${API}/api/admin/users/${id}/role`, {
+      method: 'PUT',
+      headers: authHeaders(),
+      body: JSON.stringify({ role: newRole })
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.message || `HTTP error: ${res.status}`);
+    }
+    if (data.success) {
+      showToast('Role updated successfully', 'success');
+      loadUsers(userPage);
+    } else {
+      throw new Error(data.message || 'Failed to update role');
+    }
+  } catch(e) {
+    showToast(e.message || 'Network error', 'error');
+  }
+}
+
+async function toggleUserStatus(id, currentEnabled, email) {
+  const newEnabled = !currentEnabled;
+  if (!confirm(`${newEnabled ? 'Enable' : 'Disable'} user ${email}?`)) return;
+  try {
+    const res = await fetch(`${API}/api/admin/users/${id}/status`, {
+      method: 'PUT',
+      headers: authHeaders(),
+      body: JSON.stringify({ enabled: newEnabled })
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.message || `HTTP error: ${res.status}`);
+    }
+    if (data.success) {
+      showToast('Status updated successfully', 'success');
+      loadUsers(userPage);
+    } else {
+      throw new Error(data.message || 'Failed to update status');
+    }
+  } catch(e) {
+    showToast(e.message || 'Network error', 'error');
+  }
+}
+
+async function deleteUser(id, name) {
+  if (!confirm(`Delete user "${name}"? This cannot be undone.`)) return;
+  try {
+    const res = await fetch(`${API}/api/admin/users/${id}`, {
+      method: 'DELETE',
+      headers: authHeaders()
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.message || `HTTP error: ${res.status}`);
+    }
+    if (data.success) {
+      showToast('User deleted', 'success');
+      loadUsers(userPage);
+    } else {
+      throw new Error(data.message || 'Delete failed');
+    }
+  } catch(e) {
+    showToast(e.message || 'Network error', 'error');
+  }
+}
+
+// ── Pagination Helper ──
+function renderPagination(containerId, total, current, loadFn) {
+  const pg = document.getElementById(containerId);
+  if (total <= 1) { pg.innerHTML = ''; return; }
+  let html = `<button class="page-btn" onclick="${loadFn.name}(${current-1})" ${current===0?'disabled':''}>‹</button>`;
+  for (let i = 0; i < Math.min(total, 7); i++) {
+    html += `<button class="page-btn ${i===current?'active':''}" onclick="${loadFn.name}(${i})">${i+1}</button>`;
+  }
+  html += `<button class="page-btn" onclick="${loadFn.name}(${current+1})" ${current===total-1?'disabled':''}>›</button>`;
+  pg.innerHTML = html;
+}
+
+// ── Utilities ──
+function formatDate(ds) {
+  if (!ds) return '—';
+  return new Date(ds).toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' });
+}
+function showToast(msg, type='success') {
+  const icons = { success:'✅', error:'❌' };
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  t.innerHTML = `<span>${icons[type]||'ℹ️'}</span><span>${msg}</span>`;
+  document.getElementById('toastContainer').appendChild(t);
+  setTimeout(() => t.remove(), 3500);
+}
+function logout() {
+  localStorage.clear();
+  document.cookie = 'routex_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+  window.location.href = 'index.html';
+}
+
+// ── Init ──
+loadOverview();
+</script>
+</body>
+</html>

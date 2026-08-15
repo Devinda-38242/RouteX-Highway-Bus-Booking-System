@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<!--suppress ALL -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RouteX - Premium E-Ticket</title>
+  <link rel="icon" href="images/Logo.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="css/TicketStyles.css" />
+</head>
+<body>
+  <div class="ambient ambient-one"></div>
+  <div class="ambient ambient-two"></div>
+  <div class="ambient ambient-three"></div>
+
+  <nav class="ticket-navbar">
+    <div class="brand" onclick="location.href='index.html'">
+      <img src="images/Logo.png" alt="RouteX Logo" class="nav-logo" />
+      <span>RouteX</span>
+    </div>
+    <div class="nav-actions">
+      <button class="nav-btn" onclick="location.href='index.html'">
+        <i class="fas fa-home"></i>
+        <span>Home</span>
+      </button>
+      <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+        <i class="fas fa-moon"></i>
+      </button>
+    </div>
+  </nav>
+
+  <div class="success-intro" id="successIntro">
+    <div class="success-ring">
+      <i class="fas fa-check"></i>
+    </div>
+    <h1>Payment Successful</h1>
+    <p>Your booking has been confirmed.</p>
+    <div class="confetti-layer" id="confettiLayer"></div>
+  </div>
+
+  <main class="ticket-shell" id="ticketShell">
+    <section class="hero-block">
+      <div>
+        <div class="section-kicker"><i class="fas fa-ticket-alt"></i> Premium e-ticket</div>
+        <h2>Thank you for booking with RouteX.</h2>
+        <p>Your journey is confirmed and your digital ticket is ready.</p>
+      </div>
+      <div class="status-pill">
+        <span class="dot"></span>
+        Confirmed • Paid • Verified
+      </div>
+    </section>
+
+    <section class="ticket-card" id="ticketCard">
+      <div class="ticket-topbar">
+        <div class="ride-banner">
+          <div class="bus-illustration">
+            <i class="fas fa-bus"></i>
+          </div>
+          <div>
+            <span class="banner-label">Boarding countdown</span>
+            <strong id="countdownText">Departs in 2h 15m</strong>
+          </div>
+        </div>
+        <div class="status-badge">Confirmed</div>
+      </div>
+
+      <div class="ticket-perforation top"></div>
+
+      <div class="ticket-body">
+        <div class="ticket-main">
+          <div class="journey-grid">
+            <div class="journey-block">
+              <span>From</span>
+              <strong id="fromText">-</strong>
+            </div>
+            <div class="journey-arrow"><i class="fas fa-arrow-right"></i></div>
+            <div class="journey-block">
+              <span>To</span>
+              <strong id="toText">-</strong>
+            </div>
+            <div class="journey-block">
+              <span>Travel Date</span>
+              <strong id="dateText">-</strong>
+            </div>
+            <div class="journey-block">
+              <span>Departure</span>
+              <strong id="departureText">-</strong>
+            </div>
+            <div class="journey-block">
+              <span>Arrival</span>
+              <strong id="arrivalText">-</strong>
+            </div>
+          </div>
+
+          <div class="section-grid">
+            <div class="info-card">
+              <h3><i class="fas fa-bus"></i> Bus Details</h3>
+              <div class="detail-row"><span>Bus Company</span><strong id="companyText">-</strong></div>
+              <div class="detail-row"><span>Bus Name</span><strong id="busNameText">-</strong></div>
+              <div class="detail-row"><span>Bus Type</span><strong id="busTypeText">-</strong></div>
+              <div class="detail-row"><span>Bus Number</span><strong id="busNumberText">-</strong></div>
+            </div>
+
+            <div class="info-card">
+              <h3><i class="fas fa-user"></i> Passenger</h3>
+              <div class="detail-row"><span>Passenger Name</span><strong id="passengerNameText">-</strong></div>
+              <div class="detail-row"><span>Phone Number</span><strong id="phoneText">-</strong></div>
+              <div class="detail-row"><span>Email Address</span><strong id="emailText">-</strong></div>
+            </div>
+          </div>
+
+          <div class="section-grid">
+            <div class="info-card">
+              <h3><i class="fas fa-chair"></i> Seat Information</h3>
+              <div class="detail-row"><span>Selected Seats</span><strong id="seatsText">-</strong></div>
+              <div class="detail-row"><span>Number of Passengers</span><strong id="passengerCountText">-</strong></div>
+            </div>
+
+            <div class="info-card">
+              <h3><i class="fas fa-credit-card"></i> Payment</h3>
+              <div class="detail-row"><span>Booking ID</span><strong id="bookingIdText">-</strong></div>
+              <div class="detail-row"><span>Payment ID</span><strong id="paymentIdText">-</strong></div>
+              <div class="detail-row"><span>Payment Method</span><strong id="paymentMethodText">-</strong></div>
+              <div class="detail-row"><span>Amount Paid</span><strong id="amountText">-</strong></div>
+              <div class="detail-row"><span>Booking Status</span><strong class="status-verified">Paid</strong></div>
+            </div>
+          </div>
+
+          <div class="footer-row">
+            <div class="qr-block">
+              <div class="qr-box">
+                <div id="qrcode"></div>
+              </div>
+              <div class="barcode" id="barcode"></div>
+            </div>
+            <div class="notice-card">
+              <h4><i class="fas fa-info-circle"></i> Boarding Notice</h4>
+              <p>Please arrive at the boarding point at least 30 minutes before departure.</p>
+              <p>Carry a valid NIC or Passport and present this QR code during boarding.</p>
+            </div>
+          </div>
+        </div>
+
+        <aside class="ticket-side">
+          <div class="side-card">
+            <h3><i class="fas fa-star"></i> Premium Experience</h3>
+            <ul>
+              <li>Reserved seats confirmed</li>
+              <li>Real-time journey updates</li>
+              <li>Secure payment protected</li>
+            </ul>
+          </div>
+          <div class="side-card">
+            <h3><i class="fas fa-headset"></i> Need Help?</h3>
+            <p><strong>Customer Support</strong></p>
+            <p><i class="fas fa-envelope"></i> support@routex.com</p>
+            <p><i class="fas fa-phone"></i> +94 77 123 4567</p>
+          </div>
+        </aside>
+      </div>
+
+      <div class="ticket-perforation bottom"></div>
+    </section>
+
+    <section class="action-row">
+      <button class="action-btn primary" id="downloadPdfBtn"><i class="fas fa-file-pdf"></i> Download PDF</button>
+      <button class="action-btn" id="printBtn"><i class="fas fa-print"></i> Print Ticket</button>
+      <button class="action-btn" id="shareBtn"><i class="fas fa-share-nodes"></i> Share Ticket</button>
+      <button class="action-btn" id="mapBtn"><i class="fas fa-map-location-dot"></i> View Boarding Location</button>
+      <button class="action-btn" id="emailBtn"><i class="fas fa-envelope"></i> Email Ticket</button>
+      <button class="action-btn" id="homeBtn"><i class="fas fa-home"></i> Back to Home</button>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="js/Ticket.js"></script>
+</body>
+</html>

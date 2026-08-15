@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<!--suppress ALL -->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RouteX – Register</title>
+    <link rel="icon" href="images/Logo.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/auth.css">
+</head>
+<body>
+<div class="auth-container">
+    <div class="auth-left">
+        <div class="auth-left-content">
+            <img src="images/Logo.png" alt="RouteX" style="height:60px;border-radius:12px;">
+            <h1>RouteX</h1>
+            <h2>Join the Journey!</h2>
+            <p>Create your account and start booking Sri Lanka's finest highway buses.</p>
+            <div class="auth-features">
+                <div class="auth-feature"><i class="fas fa-shield-alt"></i> Secure OTP Verification</div>
+                <div class="auth-feature"><i class="fas fa-ticket-alt"></i> Instant E-Tickets</div>
+                <div class="auth-feature"><i class="fas fa-robot"></i> 24/7 AI Chatbot Support</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="auth-right">
+        <div class="auth-card">
+            <!-- Step Indicator -->
+            <div class="steps-indicator">
+                <div class="step active" id="step1-ind">1</div>
+                <div class="step-line" id="line1"></div>
+                <div class="step pending" id="step2-ind">2</div>
+            </div>
+
+            <!-- Step 1: Registration Form -->
+            <div id="step1">
+                <div class="auth-header">
+                    <h2>Create Account</h2>
+                    <p>Already have an account? <a href="login.html">Sign in</a></p>
+                </div>
+                <div id="error-msg" class="error-msg" style="display:none;"></div>
+
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <div class="input-icon">
+                        <i class="fas fa-user"></i>
+                        <input type="text" id="fullName" placeholder="e.g. Kamal Perera" required>
+                    </div>
+                    <span class="field-error" id="name-err"></span>
+                </div>
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <div class="input-icon">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" id="email" placeholder="you@example.com" required>
+                    </div>
+                    <span class="field-error" id="email-err"></span>
+                </div>
+                <div class="form-group">
+                    <label>Phone Number</label>
+                    <div class="input-icon">
+                        <i class="fas fa-phone"></i>
+                        <input type="tel" id="phone" placeholder="0771234567" maxlength="10" required>
+                    </div>
+                    <span class="field-error" id="phone-err"></span>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <div class="input-icon">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="password" placeholder="At least 6 characters" required>
+                        <button type="button" class="toggle-pass" onclick="togglePass()">
+                            <i class="fas fa-eye" id="eye-icon"></i>
+                        </button>
+                    </div>
+                    <span class="field-error" id="pass-err"></span>
+                </div>
+                <div class="form-group">
+                    <label>Confirm Password</label>
+                    <div class="input-icon">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="confirmPassword" placeholder="Repeat password" required>
+                    </div>
+                    <span class="field-error" id="confirm-err"></span>
+                </div>
+
+                <button class="auth-btn" onclick="doRegister()" id="reg-btn">
+                    <span id="reg-btn-text">Create Account</span>
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+
+            <!-- Step 2: OTP Verification -->
+            <div id="step2" style="display:none;">
+                <div class="auth-header">
+                    <h2>Verify Email</h2>
+                    <p>We sent a 6-digit OTP to <b id="otp-email-display"></b></p>
+                </div>
+                <div id="otp-error-msg" class="error-msg" style="display:none;"></div>
+                <div id="otp-success-msg" class="success-msg" style="display:none;"></div>
+
+                <div style="text-align:center; margin:24px 0;">
+                    <div style="font-size:60px;">📧</div>
+                    <p style="color:rgba(255,255,255,0.6);font-size:13px;margin-top:8px;">
+                        Enter the 6-digit code below
+                    </p>
+                </div>
+
+                <div class="otp-inputs">
+                    <input type="text" class="otp-digit" maxlength="1" id="o1">
+                    <input type="text" class="otp-digit" maxlength="1" id="o2">
+                    <input type="text" class="otp-digit" maxlength="1" id="o3">
+                    <input type="text" class="otp-digit" maxlength="1" id="o4">
+                    <input type="text" class="otp-digit" maxlength="1" id="o5">
+                    <input type="text" class="otp-digit" maxlength="1" id="o6">
+                </div>
+
+                <button class="auth-btn" onclick="doVerify()" id="verify-btn">
+                    <span id="verify-btn-text">Verify & Continue</span>
+                    <i class="fas fa-check"></i>
+                </button>
+
+                <p style="text-align:center;margin-top:16px;font-size:13px;color:rgba(255,255,255,0.5);">
+                    Didn't receive it? 
+                    <a href="#" onclick="resendOtp()" style="color:#4db8ff;">Resend OTP</a>
+                    <span id="resend-timer"></span>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+const API = 'http://localhost:8080/api';
+let registeredEmail = '';
+let resendCountdown;
+
+async function doRegister() {
+    clearErrors();
+    const fullName = document.getElementById('fullName').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const phone = document.getElementById('phone').value.trim();
+    const password = document.getElementById('password').value;
+    const confirm = document.getElementById('confirmPassword').value;
+
+    let valid = true;
+    if (!fullName || fullName.length < 2) { showFieldErr('name-err', 'Full name must be at least 2 characters'); valid = false; }
+    if (!email || !/\S+@\S+\.\S+/.test(email)) { showFieldErr('email-err', 'Enter a valid email'); valid = false; }
+    if (!phone || !/^0[0-9]{9}$/.test(phone)) { showFieldErr('phone-err', 'Enter valid Sri Lankan number (e.g. 0771234567)'); valid = false; }
+    if (!password || password.length < 6) { showFieldErr('pass-err', 'Password must be at least 6 characters'); valid = false; }
+    if (password !== confirm) { showFieldErr('confirm-err', 'Passwords do not match'); valid = false; }
+    if (!valid) return;
+
+    setLoading('reg-btn', 'reg-btn-text', true, 'Sending OTP...');
+    try {
+        const res = await fetch(`${API}/auth/register`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ fullName, email, phone, password })
+        });
+        const json = await res.json();
+        if (json.success) {
+            registeredEmail = email;
+            showStep2();
+        } else {
+            showError('error-msg', json.message || 'Registration failed');
+        }
+    } catch {
+        showError('error-msg', 'Connection error. Please ensure the server is running.');
+    } finally {
+        setLoading('reg-btn', 'reg-btn-text', false, 'Create Account');
+    }
+}
+
+function showStep2() {
+    document.getElementById('step1').style.display = 'none';
+    document.getElementById('step2').style.display = 'block';
+    document.getElementById('step1-ind').className = 'step done';
+    document.getElementById('step2-ind').className = 'step active';
+    document.getElementById('line1').className = 'step-line done';
+    document.getElementById('otp-email-display').textContent = registeredEmail;
+    document.getElementById('o1').focus();
+    startResendTimer();
+}
+
+// OTP digit auto-advance
+document.querySelectorAll('.otp-digit').forEach((input, i, all) => {
+    input.addEventListener('input', () => {
+        input.value = input.value.replace(/\D/g, '');
+        if (input.value && i < all.length - 1) all[i + 1].focus();
+    });
+    input.addEventListener('keydown', e => {
+        if (e.key === 'Backspace' && !input.value && i > 0) all[i - 1].focus();
+    });
+});
+
+async function doVerify() {
+    const otp = ['o1','o2','o3','o4','o5','o6'].map(id => document.getElementById(id).value).join('');
+    if (otp.length < 6) { showError('otp-error-msg', 'Please enter all 6 digits'); return; }
+
+    setLoading('verify-btn', 'verify-btn-text', true, 'Verifying...');
+    try {
+        const res = await fetch(`${API}/auth/verify-otp`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: registeredEmail, otp })
+        });
+        const json = await res.json();
+        if (json.success) {
+            document.getElementById('otp-success-msg').textContent = '✅ Email verified! Redirecting to login...';
+            document.getElementById('otp-success-msg').style.display = 'block';
+            setTimeout(() => window.location.href = 'login.html', 1500);
+        } else {
+            showError('otp-error-msg', json.message || 'Invalid OTP');
+        }
+    } catch {
+        showError('otp-error-msg', 'Connection error.');
+    } finally {
+        setLoading('verify-btn', 'verify-btn-text', false, 'Verify & Continue');
+    }
+}
+
+async function resendOtp() {
+    try {
+        await fetch(`${API}/auth/resend-otp?email=${encodeURIComponent(registeredEmail)}`, { method: 'POST' });
+        showError('otp-success-msg', 'New OTP sent!');
+        startResendTimer();
+    } catch { showError('otp-error-msg', 'Failed to resend OTP'); }
+}
+
+function startResendTimer() {
+    clearInterval(resendCountdown);
+    let t = 60;
+    const el = document.getElementById('resend-timer');
+    el.textContent = ` (${t}s)`;
+    resendCountdown = setInterval(() => {
+        t--;
+        el.textContent = t > 0 ? ` (${t}s)` : '';
+        if (t <= 0) clearInterval(resendCountdown);
+    }, 1000);
+}
+
+function togglePass() {
+    const p = document.getElementById('password');
+    const i = document.getElementById('eye-icon');
+    p.type = p.type === 'password' ? 'text' : 'password';
+    i.className = p.type === 'password' ? 'fas fa-eye' : 'fas fa-eye-slash';
+}
+
+function setLoading(btnId, textId, loading, text) {
+    document.getElementById(btnId).disabled = loading;
+    document.getElementById(textId).textContent = text;
+}
+function clearErrors() {
+    document.getElementById('error-msg').style.display = 'none';
+    document.querySelectorAll('.field-error').forEach(e => e.textContent = '');
+}
+function showError(id, msg) { const el = document.getElementById(id); el.textContent = msg; el.style.display = 'block'; }
+function showFieldErr(id, msg) { document.getElementById(id).textContent = msg; }
+</script>
+</body>
+</html>

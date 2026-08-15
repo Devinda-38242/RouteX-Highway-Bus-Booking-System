@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<!--suppress ALL -->
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RouteX – Highway Bus Booking</title>
+    <link rel="icon" href="images/Logo.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+          rel="stylesheet">
+    <link rel="stylesheet" href="css/home.css">
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+<header>
+    <nav class="navbar">
+        <div class="brand">
+            <img class="nav-logo" src="images/Logo.png" alt="RouteX Logo">
+            <h2 class="brand-name">RouteX</h2>
+        </div>
+        <ul class="nav-links">
+            <li><a href="#hero">Home</a></li>
+            <li><a href="#search-section">Routes</a></li>
+            <li><a href="#features">About</a></li>
+            <li><a href="#contact">Contact</a></li>
+        </ul>
+        <div class="nav-buttons">
+            <button id="theme-toggle" class="theme-btn" aria-label="Switch to light mode">
+                <i class="fa-solid fa-sun"></i>
+            </button>
+            <div id="guest-buttons">
+                <button class="login-btn" onclick="location.href='login.html'">Login</button>
+                <button class="register-btn" onclick="location.href='register.html'">Register</button>
+            </div>
+            <div id="user-menu" style="display:none;">
+                <span id="user-greeting" class="user-greeting"></span>
+                <button class="register-btn" onclick="location.href='my-bookings.html'">My Bookings</button>
+                <button class="login-btn" onclick="logout()">Logout</button>
+            </div>
+        </div>
+    </nav>
+</header>
+
+<!-- HERO -->
+<section class="hero" id="hero">
+    <div class="hero-content">
+        <div class="hero-badge">🚌 Sri Lanka's #1 Bus Booking Platform</div>
+        <h1>RouteX</h1>
+        <h2>Book Fast. Travel Smart.</h2>
+        <p>Book highway buses across Sri Lanka with comfort, speed, and convenience.
+            Choose routes, select seats, and enjoy a smarter travel experience.</p>
+        <div class="hero-buttons">
+            <button onclick="scrollToSearch()"><i class="fas fa-search"></i> Search Buses</button>
+            <button class="secondary" onclick="scrollToRoutes()"><i class="fas fa-map-marked-alt"></i> View
+                Routes</button>
+        </div>
+        <div class="hero-stats">
+            <div class="stat"><span class="stat-num">50+</span><span>Routes</span></div>
+            <div class="stat"><span class="stat-num">10K+</span><span>Passengers</span></div>
+            <div class="stat"><span class="stat-num">24/7</span><span>Support</span></div>
+        </div>
+    </div>
+
+</section>
+
+<!-- SEARCH BOX -->
+<section class="search-section reveal" id="search-section">
+    <div class="search-heading">
+        <h2>Find Your Perfect Bus</h2>
+        <p>Search routes, choose your seats, and travel comfortably across Sri Lanka</p>
+    </div>
+    <form class="search-box" onsubmit="goToResults(event)">
+        <div class="input-wrapper">
+            <i class="fas fa-map-marker-alt"></i>
+            <input list="origins-list" id="from-input" type="text" placeholder="From (e.g. Colombo)" required>
+            <datalist id="origins-list"></datalist>
+        </div>
+        <div class="swap-btn" onclick="swapLocations()">⇄</div>
+        <div class="input-wrapper">
+            <i class="fas fa-map-pin"></i>
+            <input list="destinations-list" id="to-input" type="text" placeholder="To (e.g. Katharagama)" required>
+            <datalist id="destinations-list"></datalist>
+        </div>
+        <div class="input-wrapper">
+            <i class="fas fa-calendar-alt"></i>
+            <input type="date" id="date-input" required>
+        </div>
+        <button type="submit"><i class="fas fa-search"></i> Search</button>
+    </form>
+</section>
+
+<!-- POPULAR ROUTES -->
+<section class="routes reveal" id="routes">
+    <h2>Popular Routes</h2>
+    <div class="route-cards" id="route-cards-container">
+        <!-- Loaded dynamically -->
+    </div>
+</section>
+
+<!-- WHY CHOOSE US -->
+<section class="features reveal" id="features">
+    <h2>Why Choose RouteX?</h2>
+    <div class="feature-box">
+        <div class="feature reveal reveal-delay">
+            <div class="feature-icon"><i class="fas fa-star"></i></div>
+            <h3>Super Luxury Fleet</h3>
+            <p>Air-conditioned super luxury buses with reclining seats, ample legroom, and modern amenities.</p>
+        </div>
+        <div class="feature reveal reveal-delay">
+            <div class="feature-icon"><i class="fas fa-chair"></i></div>
+            <h3>Live Seat Availability</h3>
+            <p>View real-time seat availability. Choose preferred seats with our interactive seat layout.</p>
+        </div>
+        <div class="feature reveal reveal-delay">
+            <div class="feature-icon"><i class="fas fa-lock"></i></div>
+            <h3>Secure Payment</h3>
+            <p>Pay securely with Visa, MasterCard, or online banking. PCI-compliant payment gateways.</p>
+        </div>
+        <div class="feature reveal reveal-delay">
+            <div class="feature-icon"><i class="fas fa-headset"></i></div>
+            <h3>24/7 Support</h3>
+            <p>Our support team is available around the clock via phone, email, and WhatsApp.</p>
+        </div>
+        <div class="feature reveal reveal-delay">
+            <div class="feature-icon"><i class="fas fa-qrcode"></i></div>
+            <h3>QR Code Ticket</h3>
+            <p>Get a digital QR ticket instantly. Show it at the bus bay – no paper needed!</p>
+        </div>
+        <div class="feature reveal reveal-delay">
+            <div class="feature-icon"><i class="fas fa-robot"></i></div>
+            <h3>AI Travel Bot</h3>
+            <p>Chat with RouteBot 24/7 for route info, prices, booking help, and more!</p>
+        </div>
+    </div>
+</section>
+
+<!-- CONTACT -->
+<section class="contact-section reveal" id="contact">
+    <h2>Contact & Inquiries</h2>
+    <div class="contact-grid">
+        <div class="contact-card">
+            <i class="fas fa-phone"></i>
+            <h3>Long Distance Service</h3>
+            <p>075 322 4532</p>
+            <p>011 2034477</p>
+        </div>
+        <div class="contact-card">
+            <i class="fas fa-envelope"></i>
+            <h3>Email Us</h3>
+            <p>systemroutex@gmail.com</p>
+            <p>info@routex.lk</p>
+        </div>
+        <div class="contact-card">
+            <i class="fas fa-map-marker-alt"></i>
+            <h3>Main Terminal</h3>
+            <p>Makumbura Bus Terminal</p>
+            <p>Colombo, Sri Lanka</p>
+        </div>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+    <div class="footer-content">
+        <div class="footer-brand">
+            <img src="images/Logo.png" alt="RouteX" style="height:40px;">
+            <h3>RouteX</h3>
+            <p>Sri Lanka's smart highway bus booking platform</p>
+        </div>
+        <div class="footer-links">
+            <h4>Quick Links</h4>
+            <a href="#">Home</a>
+            <a href="#">Routes</a>
+            <a href="login.html">Login</a>
+            <a href="register.html">Register</a>
+        </div>
+        <div class="footer-social">
+            <h4>Follow Us</h4>
+            <div class="social-icons">
+                <a href="#"><i class="fab fa-facebook-f"></i></a>
+                <a href="#"><i class="fab fa-x"></i></a>
+                <a href="#"><i class="fab fa-instagram"></i></a>
+                <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                <a href="#"><i class="fab fa-whatsapp"></i></a>
+            </div>
+        </div>
+    </div>
+    <div class="footer-bottom">
+        <p>© 2026 RouteX | All Rights Reserved</p>
+    </div>
+</footer>
+
+<!-- CHATBOT -->
+<div class="chatbot-toggle" onclick="toggleBot()">
+    <i class="fas fa-robot"></i>
+    <span class="bot-badge" id="bot-badge">1</span>
+</div>
+<div class="chatbot-window" id="chatbot-window">
+    <div class="chatbot-header">
+        <div class="bot-info">
+            <div class="bot-avatar"><i class="fas fa-robot"></i></div>
+            <div>
+                <h4>RouteBot</h4>
+                <span class="bot-status">🟢 Online</span>
+            </div>
+        </div>
+        <button onclick="toggleBot()">✕</button>
+    </div>
+    <div class="chatbot-messages" id="chatbot-messages">
+        <div class="bot-msg">
+            👋 Hi! I'm <b>RouteBot</b>. Ask me about routes, prices, or how to book! 🚌
+        </div>
+    </div>
+    <div class="chatbot-quick-replies">
+        <button onclick="quickReply('routes from Colombo to Kandy')">🏔️ Colombo → Kandy</button>
+        <button onclick="quickReply('routes from Kandy to Colombo')">↩ Kandy → Colombo</button>
+        <button onclick="quickReply('routes from Colombo to Galle')">🌊 Colombo → Galle</button>
+        <button onclick="quickReply('routes from Galle to Colombo')">↩ Galle → Colombo</button>
+        <button onclick="quickReply('routes from Colombo to Jaffna')">🕌 Colombo → Jaffna</button>
+        <button onclick="quickReply('routes from Jaffna to Colombo')">↩ Jaffna → Colombo</button>
+        <button onclick="quickReply('routes from Makumbura to Katharagama')">🛕 Makumbura → Katharagama</button>
+        <button onclick="quickReply('routes from Katharagama to Makumbura')">↩ Katharagama → Makumbura</button>
+        <button onclick="quickReply('routes from Colombo to Trincomalee')">⚓ Colombo → Trincomalee</button>
+        <button onclick="quickReply('routes from Trincomalee to Colombo')">↩ Trincomalee → Colombo</button>
+        <button onclick="quickReply('routes from Colombo to Badulla')">🌿 Colombo → Badulla</button>
+        <button onclick="quickReply('routes from Badulla to Colombo')">↩ Badulla → Colombo</button>
+        <button onclick="quickReply('routes from Colombo to Matara')">🌅 Colombo → Matara</button>
+        <button onclick="quickReply('routes from Matara to Colombo')">↩ Matara → Colombo</button>
+        <button onclick="quickReply('routes from Colombo to Anuradhapura')">🏛️ Colombo → Anuradhapura</button>
+        <button onclick="quickReply('routes from Anuradhapura to Colombo')">↩ Anuradhapura → Colombo</button>
+        <button onclick="quickReply('routes from Colombo to Batticaloa')">🏖️ Colombo → Batticaloa</button>
+        <button onclick="quickReply('routes from Batticaloa to Colombo')">↩ Batticaloa → Colombo</button>
+        <button onclick="quickReply('all routes')">🚌 All Routes</button>
+        <button onclick="quickReply('Ticket prices')">💰 Prices</button>
+        <button onclick="quickReply('How to book')">📋 How to Book</button>
+        <button onclick="quickReply('contact support')">📞 Contact</button>
+    </div>
+    <div class="chatbot-input">
+        <input type="text" id="bot-input" placeholder="Type your question..." onkeypress="botEnter(event)">
+        <button onclick="sendBotMessage()"><i class="fas fa-paper-plane"></i></button>
+    </div>
+</div>
+
+<!-- LOADER -->
+<div class="page-loader" id="page-loader">
+    <div class="loader-bus">🚌</div>
+    <p>Loading RouteX...</p>
+</div>
+
+<script src="js/home.js"></script>
+</body>
+
+</html>

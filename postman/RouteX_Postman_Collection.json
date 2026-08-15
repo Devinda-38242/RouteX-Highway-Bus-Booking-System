@@ -1,0 +1,695 @@
+{
+  "info": {
+    "name": "RouteX — Highway Bus Booking API",
+    "description": "Complete API collection for RouteX Sri Lanka Bus Booking Platform.\nBase URL: http://localhost:8080\n\nDemo Credentials:\n- Admin: admin@routex.lk / Admin@2026\n- User: user@routex.lk / User@2026\n- Demo OTP: 123456\n\nFlow:\n1. Register → Verify OTP → Login\n2. Search Routes → Get Schedule → Get Seats\n3. Send Booking OTP → Verify OTP → Create Booking\n4. View My Bookings → Cancel Booking",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "routex-collection-2026"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "bookingRef",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "scheduleId",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "routeId",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "userId",
+      "value": "1",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "🔐 Auth",
+      "item": [
+        {
+          "name": "1. Register New User",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"Test User\",\n  \"email\": \"testuser@gmail.com\",\n  \"password\": \"Test@1234\",\n  \"phone\": \"0771234567\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "register"]
+            },
+            "description": "Register a new user. An OTP will be sent to the email address."
+          }
+        },
+        {
+          "name": "2. Verify OTP (Activate Account)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"testuser@gmail.com\",\n  \"otp\": \"123456\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/verify-otp",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "verify-otp"]
+            },
+            "description": "Verify email OTP to activate account. Demo accounts use OTP: 123456"
+          }
+        },
+        {
+          "name": "3. Resend OTP",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/resend-otp?email=testuser@gmail.com",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "resend-otp"],
+              "query": [
+                { "key": "email", "value": "testuser@gmail.com" }
+              ]
+            },
+            "description": "Resend OTP to the given email address."
+          }
+        },
+        {
+          "name": "4. Login (User)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.data && json.data.token) {",
+                  "  pm.environment.set('authToken', json.data.token);",
+                  "  console.log('Token saved:', json.data.token);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@routex.lk\",\n  \"password\": \"User@2026\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            },
+            "description": "Login with user credentials. JWT token is set as HttpOnly cookie automatically. Token is also saved to environment variable."
+          }
+        },
+        {
+          "name": "5. Login (Admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.data && json.data.token) {",
+                  "  pm.environment.set('adminToken', json.data.token);",
+                  "  console.log('Admin token saved');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@routex.lk\",\n  \"password\": \"Admin@2026\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            },
+            "description": "Login with admin credentials."
+          }
+        },
+        {
+          "name": "6. Logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "logout"]
+            },
+            "description": "Clears the JWT HttpOnly cookie. User is logged out."
+          }
+        }
+      ]
+    },
+    {
+      "name": "🚌 Bus Routes (Public)",
+      "item": [
+        {
+          "name": "1. Get All Locations",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/routes/locations",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "routes", "locations"]
+            },
+            "description": "Returns all unique origins and destinations. Cached with @Cacheable."
+          }
+        },
+        {
+          "name": "2. Search Routes",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/routes/search?origin=Makumbura (Colombo)&destination=Katharagama&date=2026-07-01&page=0&size=10&sortBy=departureTime&direction=asc",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "routes", "search"],
+              "query": [
+                { "key": "origin", "value": "Makumbura (Colombo)" },
+                { "key": "destination", "value": "Katharagama" },
+                { "key": "date", "value": "2026-07-01" },
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "10" },
+                { "key": "sortBy", "value": "departureTime" },
+                { "key": "direction", "value": "asc" }
+              ]
+            },
+            "description": "Search bus routes by origin, destination and date. Paginated and sortable."
+          }
+        },
+        {
+          "name": "3. Search Colombo to Kandy",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/routes/search?origin=Colombo (Pettah)&destination=Kandy&date=2026-07-01&page=0&size=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "routes", "search"],
+              "query": [
+                { "key": "origin", "value": "Colombo (Pettah)" },
+                { "key": "destination", "value": "Kandy" },
+                { "key": "date", "value": "2026-07-01" },
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "4. Get or Create Schedule for Route",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/routes/{{routeId}}/schedule?date=2026-07-01",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "routes", "{{routeId}}", "schedule"],
+              "query": [
+                { "key": "date", "value": "2026-07-01" }
+              ]
+            },
+            "description": "Gets the schedule for a specific route on a given date. Creates one if it doesn't exist."
+          }
+        },
+        {
+          "name": "5. Get Real-Time Seat Availability",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/routes/schedules/{{scheduleId}}/seats",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "routes", "schedules", "{{scheduleId}}", "seats"]
+            },
+            "description": "Returns booked seats, available seats, and total seats for a schedule."
+          }
+        }
+      ]
+    },
+    {
+      "name": "🎫 Bookings",
+      "item": [
+        {
+          "name": "1. Send Booking OTP",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/bookings/send-otp?email=user@routex.lk",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "bookings", "send-otp"],
+              "query": [
+                { "key": "email", "value": "user@routex.lk" }
+              ]
+            },
+            "description": "Sends a 6-digit OTP to passenger email before booking confirmation. Demo accounts return OTP 123456."
+          }
+        },
+        {
+          "name": "2. Verify Booking OTP",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/bookings/verify-otp?email=user@routex.lk&otp=123456",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "bookings", "verify-otp"],
+              "query": [
+                { "key": "email", "value": "user@routex.lk" },
+                { "key": "otp", "value": "123456" }
+              ]
+            },
+            "description": "Verifies the booking OTP. OTP expires in 5 minutes."
+          }
+        },
+        {
+          "name": "3. Create Booking",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.data && json.data.bookingReference) {",
+                  "  pm.collectionVariables.set('bookingRef', json.data.bookingReference);",
+                  "  console.log('Booking ref saved:', json.data.bookingReference);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{authToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"scheduleId\": 1,\n  \"seats\": [\"A1\", \"A2\"],\n  \"passengerName\": \"Test Passenger\",\n  \"passengerEmail\": \"user@routex.lk\",\n  \"passengerPhone\": \"0771234567\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/bookings",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "bookings"]
+            },
+            "description": "Create a new booking. Requires authentication. Sends confirmation email with QR code PDF."
+          }
+        },
+        {
+          "name": "4. Get My Bookings",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{authToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/bookings/my?page=0&size=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "bookings", "my"],
+              "query": [
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "10" }
+              ]
+            },
+            "description": "Get all bookings for the currently logged-in user. Paginated."
+          }
+        },
+        {
+          "name": "5. Get Booking by Reference",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/bookings/{{bookingRef}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "bookings", "{{bookingRef}}"]
+            },
+            "description": "Get full booking details by booking reference number (e.g. RTX1234567890)."
+          }
+        },
+        {
+          "name": "6. Cancel Booking",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{authToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/bookings/{{bookingRef}}/cancel",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "bookings", "{{bookingRef}}", "cancel"]
+            },
+            "description": "Cancel a booking. Seats are freed and status is set to CANCELLED + REFUNDED. WebSocket broadcasts seat update."
+          }
+        }
+      ]
+    },
+    {
+      "name": "🛠️ Admin — Routes",
+      "item": [
+        {
+          "name": "1. Get All Routes (Paginated)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/routes?page=0&size=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "routes"],
+              "query": [
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "10" }
+              ]
+            },
+            "description": "Admin only. Get all bus routes with pagination."
+          }
+        },
+        {
+          "name": "2. Create New Route",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"origin\": \"Colombo (Pettah)\",\n  \"destination\": \"Kurunegala\",\n  \"departureTime\": \"07:00\",\n  \"arrivalTime\": \"10:00\",\n  \"busType\": \"EXPRESS\",\n  \"operatorName\": \"North West Express\",\n  \"contactNumber\": \"0771234567\",\n  \"busBay\": \"A-3\",\n  \"price\": 1300,\n  \"totalSeats\": 45,\n  \"active\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/routes",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "routes"]
+            },
+            "description": "Admin only. Create a new bus route. BusType options: EXPRESS, LUXURY, SUPER_LUXURY, SUPER_EXPRESS"
+          }
+        },
+        {
+          "name": "3. Update Route",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"origin\": \"Colombo (Pettah)\",\n  \"destination\": \"Kurunegala\",\n  \"departureTime\": \"08:00\",\n  \"arrivalTime\": \"11:00\",\n  \"busType\": \"LUXURY\",\n  \"operatorName\": \"North West Luxury\",\n  \"contactNumber\": \"0771234567\",\n  \"busBay\": \"A-3\",\n  \"price\": 1500,\n  \"totalSeats\": 50,\n  \"active\": true\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/routes/{{routeId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "routes", "{{routeId}}"]
+            },
+            "description": "Admin only. Update an existing route by ID."
+          }
+        },
+        {
+          "name": "4. Deactivate Route (Soft Delete)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/routes/{{routeId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "routes", "{{routeId}}"]
+            },
+            "description": "Admin only. Soft deletes a route by setting active=false. Route is hidden from passengers."
+          }
+        }
+      ]
+    },
+    {
+      "name": "🛠️ Admin — Bookings",
+      "item": [
+        {
+          "name": "1. Get All Bookings (Paginated)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/bookings?page=0&size=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "bookings"],
+              "query": [
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "20" }
+              ]
+            },
+            "description": "Admin only. View all bookings on the platform with pagination, sorted by newest first."
+          }
+        }
+      ]
+    },
+    {
+      "name": "🛠️ Admin — Users",
+      "item": [
+        {
+          "name": "1. Get All Users (Paginated)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/users?page=0&size=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "users"],
+              "query": [
+                { "key": "page", "value": "0" },
+                { "key": "size", "value": "20" }
+              ]
+            },
+            "description": "Admin only. Get all non-deleted users with pagination."
+          }
+        },
+        {
+          "name": "2. Update User Details",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"fullName\": \"Updated Name\",\n  \"email\": \"updated@gmail.com\",\n  \"phone\": \"0779876543\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/users/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "users", "{{userId}}"]
+            },
+            "description": "Admin only. Update user's name, email and phone."
+          }
+        },
+        {
+          "name": "3. Change User Role",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role\": \"ADMIN\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/users/{{userId}}/role",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "users", "{{userId}}", "role"]
+            },
+            "description": "Admin only. Change user role to USER or ADMIN. Cannot demote own account."
+          }
+        },
+        {
+          "name": "4. Enable / Disable User",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"enabled\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/users/{{userId}}/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "users", "{{userId}}", "status"]
+            },
+            "description": "Admin only. Enable or disable a user account. Cannot disable own account."
+          }
+        },
+        {
+          "name": "5. Delete User (Soft Delete)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/users/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "users", "{{userId}}"]
+            },
+            "description": "Admin only. Soft deletes a user (sets deleted=true, enabled=false). Cannot delete own account or last admin."
+          }
+        }
+      ]
+    },
+    {
+      "name": "🤖 Chatbot (RouteBot)",
+      "item": [
+        {
+          "name": "Say Hello",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"hello\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/bot/message",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "bot", "message"]
+            }
+          }
+        },
+        {
+          "name": "Ask About Katharagama Route",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"katharagama bus times\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/bot/message",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "bot", "message"]
+            }
+          }
+        },
+        {
+          "name": "Ask About Ticket Price",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"what is the ticket price\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/bot/message",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "bot", "message"]
+            }
+          }
+        },
+        {
+          "name": "Ask How to Book",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"how to book a ticket\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/bot/message",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "bot", "message"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "📄 API Docs",
+      "item": [
+        {
+          "name": "Swagger UI",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/swagger-ui.html",
+              "host": ["{{baseUrl}}"],
+              "path": ["swagger-ui.html"]
+            },
+            "description": "Open in browser to view interactive API documentation."
+          }
+        },
+        {
+          "name": "OpenAPI JSON Spec",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v3/api-docs",
+              "host": ["{{baseUrl}}"],
+              "path": ["v3", "api-docs"]
+            },
+            "description": "Raw OpenAPI 3.0 JSON specification."
+          }
+        }
+      ]
+    }
+  ]
+}
